@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PICKCAR | 차량견적</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<header class="header">
+  <div class="wrap header__inner">
+    <a class="brand" href="index.html"><span class="brand__logo">PX</span><span class="brand__text"><b>PICKCAR</b><small>신차 종합 에이전시</small></span></a>
+    <nav class="nav">
+      <a href="index.html">홈</a>
+      <a href="cars.html" class="is-active">차량견적</a>
+      <a href="compare.html">구매방식 비교</a>
+      <a href="contact.html">즉시상담</a>
+      <a href="about.html">픽카소개</a>
+    </nav>
+    <a class="btn btn--primary" href="contact.html">빠른 상담</a>
+  </div>
+</header>
+
+<section class="page-title">
+  <div class="wrap">
+    <h1>차량 견적 (예상가)</h1>
+    <p class="muted">차량을 클릭하면 조건(렌트/리스, 48/60, 선수금30%)을 선택할 수 있습니다.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="filters">
+      <div class="panel">
+        <b>차량 검색</b>
+        <p class="muted">예: 카니발, 그랜저, E클래스</p>
+        <input class="input" id="search" placeholder="검색어 입력" />
+      </div>
+      <div class="panel">
+        <b>안내</b>
+        <p class="note">표시 금액은 예상입니다. 정확 견적은 상담으로 확정됩니다.</p>
+        <a class="btn btn--primary" href="contact.html">상담으로 확정 견적 받기</a>
+      </div>
+    </div>
+
+    <div class="grid" id="carsGrid"></div>
+  </div>
+</section>
+
+<footer class="footer"><div class="wrap">© PICKCAR</div></footer>
+
+<script src="assets/js/data.js"></script>
+<script>
+  const DATA = window.PICKCAR_DATA?.cars || [];
+  const grid = document.getElementById("carsGrid");
+  const input = document.getElementById("search");
+
+  function card(c){
+    const base = c?.prices?.rent?.p3?.d30?.t60?.km1;
+    const priceText = (typeof base==="number") ? `월 ${base}만원~` : `월 비용 보기`;
+    return `
+      <a class="car" href="car.html?id=${encodeURIComponent(c.id)}">
+        <div class="car__img"><img src="${c.img}" alt=""></div>
+        <div class="car__body">
+          <b>${c.brand} ${c.model}</b>
+          <small class="muted">${c.trim||""}</small>
+          <div class="price">${priceText}</div>
+          <span class="badge">${c.fuel||""} · ${c.type||""}</span>
+        </div>
+      </a>`;
+  }
+
+  function render(list){
+    grid.innerHTML = list.map(card).join("");
+  }
+
+  const params = new URLSearchParams(location.search);
+  const q = (params.get("q")||"").trim();
+  if(q) input.value = q;
+
+  function apply(){
+    const s = (input.value||"").trim().toLowerCase();
+    const list = !s ? DATA : DATA.filter(c =>
+      (`${c.brand} ${c.model} ${c.trim}`.toLowerCase().includes(s))
+    );
+    render(list);
+  }
+
+  input.addEventListener("input", apply);
+  apply();
+</script>
+</body>
+</html>
