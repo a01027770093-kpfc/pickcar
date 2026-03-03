@@ -1,281 +1,99 @@
-// ===== 공통 유틸 =====
-const fmtWon = (n) => n.toLocaleString("ko-KR") + "원";
+// assets/js/app.js
+(function(){
+  const $ = (s, p=document) => p.querySelector(s);
+  const $$ = (s, p=document) => [...p.querySelectorAll(s)];
 
-// 타입별 기본 이미지(무료/대충)
-const TYPE_IMG = {
-  "경차·소형": "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=60",
-  "준중형": "https://images.unsplash.com/photo-1542362567-b07e54358753?auto=format&fit=crop&w=1200&q=60",
-  "중형": "https://images.unsplash.com/photo-1519648023493-d82b5f8d7b8a?auto=format&fit=crop&w=1200&q=60",
-  "준대형": "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&w=1200&q=60",
-  "대형승용": "https://images.unsplash.com/photo-1502877338535-766e1452684a?auto=format&fit=crop&w=1200&q=60",
-  "SUV·RV": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=1200&q=60",
-  "화물·승합": "https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1200&q=60",
-};
+  // Slider
+  const slider = document.querySelector("[data-slider]");
+  if(slider){
+    const slides = $$(".hero__slide", slider);
+    const dotsBox = $("[data-dots]", slider);
+    let idx = 0, timer = null;
 
-// 잔존율(대략): 기간/차종/브랜드에 따라 “대충”
-function residualRate({make, type, term}) {
-  // base
-  let r = term === 48 ? 0.55 : 0.48;
+    const makeDots = () => {
+      dotsBox.innerHTML = slides.map((_,i)=>`<button class="dot ${i===0?'is-active':''}" data-dot="${i}" aria-label="${i+1}"></button>`).join("");
+    };
 
-  if (type === "SUV·RV") r += 0.03;
-  if (type === "대형승용") r += 0.02;
-  if (type === "준중형") r -= 0.01;
+    const set = (n) => {
+      idx = (n + slides.length) % slides.length;
+      slides.forEach((el,i)=>el.classList.toggle("is-active", i===idx));
+      $$(".dot", dotsBox).forEach((d,i)=>d.classList.toggle("is-active", i===idx));
+    };
 
-  // 수입 프리미엄 잔존율 약간 상향
-  const premium = ["벤츠","BMW","아우디","볼보","렉서스"];
-  if (premium.includes(make)) r += 0.02;
+    const next = () => set(idx+1);
+    const prev = () => set(idx-1);
 
-  // 전기차 변동성: 보수적으로 약간 하향
-  // (대표님이 “대략”이 목적이라 안정적으로)
-  // fuel 정보가 없어서 여기선 make/type로만
-  return Math.max(0.40, Math.min(0.68, r));
-}
-
-// 트림 계수(스탠다드/프리미엄/하이엔드)
-function trimFactor(trim){
-  if (trim === "프리미엄") return 1.08;
-  if (trim === "하이엔드") return 1.17;
-  return 1.0;
-}
-
-// 상품(렌트/리스) 계수: 렌트는 보험/세금 포함 구조가 많아 약간 상향(대략)
-function planFactor(plan){
-  if (plan === "리스") return 0.98;
-  return 1.02; // 렌트
-}
-
-// 이자(대략) 계수: 기간 길수록 약간 상향
-function interestFactor(term){
-  return term === 48 ? 1.06 : 1.08;
-}
-
-// ===== “예상 월 비용” 계산 =====
-// msrp: 만원 단위
-// 선수금 30%: msrp * 0.30 선납
-// 초기비용 0: 선납 0
-function estimateMonthly({msrp, make, type, plan, term, pay, trim}) {
-  const priceWon = msrp * 10000; // 만원 -> 원
-  const r = residualRate({make, type, term});
-  const residualWon = priceWon * r;
-
-  const downWon = (pay === "선수금30") ? priceWon * 0.30 : 0;
-
-  // (차량가격 - 선수금 - 잔존가) / 개월수
-  const base = (priceWon - downWon - residualWon) / term;
-
-  // 계수 적용
-  const monthly = base
-    * interestFactor(term)
-    * planFactor(plan)
-    * trimFactor(trim);
-
-  return Math.round(monthly / 1000) * 1000; // 천원 단위 반올림
-}
-
-// 월 대여료 필터는 “예상 월비용(렌트/60/초기0/스탠다드)” 기준으로 분류
-function priceBucket(car){
-  const v = estimateMonthly({
-    msrp: car.msrp,
-    make: car.make,
-    type: car.type,
-    plan: "렌트",
-    term: 60,
-    pay: "초기0",
-    trim: "스탠다드"
-  });
-  if (v <= 500000) return "50만 원 이하";
-  if (v <= 700000) return "50~70만원";
-  if (v <= 1000000) return "70~100만원";
-  return "100만원 이상";
-}
-
-// ===== 페이지 분기 =====
-const isIndex = location.pathname.endsWith("index.html") || location.pathname.endsWith("/");
-const isCar = location.pathname.endsWith("car.html");
-
-// ===== INDEX: 필터/검색/리스트 =====
-if (isIndex){
-  const state = {
-    make: "전체",
-    price: "전체",
-    type: "전체",
-    fuel: "전체",
-    q: ""
-  };
-
-  const makes = ["전체", ...Array.from(new Set(CARS.map(c=>c.make)))];
-  const types = ["전체", ...Array.from(new Set(CARS.map(c=>c.type)))];
-  const fuels = ["전체", ...Array.from(new Set(CARS.map(c=>c.fuel)))];
-  const prices = ["전체","50만 원 이하","50~70만원","70~100만원","100만원 이상"];
-
-  const chipsMake = document.getElementById("chipsMake");
-  const segPrice = document.getElementById("segPrice");
-  const segType = document.getElementById("segType");
-  const segFuel = document.getElementById("segFuel");
-  const grid = document.getElementById("grid");
-  const meta = document.getElementById("resultMeta");
-  const q = document.getElementById("q");
-  const btnReset = document.getElementById("btnReset");
-
-  function renderChips(){
-    chipsMake.innerHTML = "";
-    makes.forEach(m=>{
-      const b = document.createElement("button");
-      b.className = "chip" + (state.make===m ? " is-active":"");
-      b.innerHTML = `<span class="chip__logo">${m==="전체" ? "ALL" : m[0]}</span>${m}`;
-      b.onclick = ()=>{state.make=m; renderAll();};
-      chipsMake.appendChild(b);
+    makeDots();
+    $("[data-next]", slider)?.addEventListener("click", next);
+    $("[data-prev]", slider)?.addEventListener("click", prev);
+    dotsBox.addEventListener("click", (e)=>{
+      const b = e.target.closest("[data-dot]");
+      if(!b) return;
+      set(parseInt(b.dataset.dot,10));
     });
+
+    timer = setInterval(next, 5500);
+    slider.addEventListener("mouseenter", ()=>clearInterval(timer));
+    slider.addEventListener("mouseleave", ()=>timer=setInterval(next, 5500));
   }
 
-  function renderSeg(el, list, key){
-    el.innerHTML="";
-    list.forEach(v=>{
-      const b=document.createElement("button");
-      b.className="seg__btn"+(state[key]===v?" is-active":"");
-      b.textContent=v;
-      b.onclick=()=>{state[key]=v; renderAll();};
-      el.appendChild(b);
-    });
-  }
-
-  function filtered(){
-    return CARS.filter(c=>{
-      if (state.make!=="전체" && c.make!==state.make) return false;
-      if (state.type!=="전체" && c.type!==state.type) return false;
-      if (state.fuel!=="전체" && c.fuel!==state.fuel) return false;
-      if (state.price!=="전체" && priceBucket(c)!==state.price) return false;
-
-      if (state.q){
-        const t = (c.make+" "+c.model).toLowerCase();
-        if (!t.includes(state.q.toLowerCase())) return false;
-      }
-      return true;
-    });
-  }
-
-  function cardHTML(c){
-    const img = TYPE_IMG[c.type] || TYPE_IMG["SUV·RV"];
-    const est = estimateMonthly({
-      msrp:c.msrp, make:c.make, type:c.type,
-      plan:"렌트", term:60, pay:"초기0", trim:"스탠다드"
-    });
-    const url = `./car.html?make=${encodeURIComponent(c.make)}&model=${encodeURIComponent(c.model)}`;
-    return `
-      <a class="card" href="${url}">
-        <div class="thumb"><img src="${img}" alt="${c.model}"></div>
-        <div class="card__body">
-          <div class="card__title">${c.model}</div>
-          <div class="card__meta">${c.make} · ${c.type} · ${c.fuel}</div>
-          <div class="card__price">월 ${fmtWon(est)} ~</div>
-          <div class="card__actions">
-            <span class="btn btn--primary">견적 보기</span>
-            <span class="btn btn--ghost">상담 연결</span>
+  // Popular cars render (홈)
+  const grid = document.getElementById("popularGrid");
+  if(grid && window.PICKCAR_DATA){
+    const list = window.PICKCAR_DATA.cars.filter(c=>c.popular).slice(0,8);
+    grid.innerHTML = list.map(c=>{
+      const base = c.trims[0]?.price ?? 0;
+      return `
+        <a class="car" href="car.html?car=${encodeURIComponent(c.id)}">
+          <div class="car__img" data-img="${c.id}"></div>
+          <div class="car__body">
+            <b>${c.brand} ${c.model}</b>
+            <small class="muted">${c.segment} · ${c.fuel} · 기준가 ${fmt(base)}</small>
           </div>
-        </div>
-      </a>
-    `;
-  }
+        </a>
+      `;
+    }).join("");
 
-  function renderAll(){
-    const list = filtered();
-    meta.textContent = `검색 결과: ${list.length}대`;
-    grid.innerHTML = list.map(cardHTML).join("");
-
-    renderChips();
-    renderSeg(segPrice, prices, "price");
-    renderSeg(segType, types, "type");
-    renderSeg(segFuel, fuels, "fuel");
-  }
-
-  q.addEventListener("input", (e)=>{state.q=e.target.value.trim(); renderAll();});
-  btnReset.onclick = ()=>{
-    state.make="전체"; state.price="전체"; state.type="전체"; state.fuel="전체"; state.q="";
-    q.value="";
-    renderAll();
-  };
-
-  renderAll();
-}
-
-// ===== CAR: 조건 선택 + 월비용 =====
-if (isCar){
-  const params = new URLSearchParams(location.search);
-  const make = params.get("make");
-  const model = params.get("model");
-
-  const car = CARS.find(c=>c.make===make && c.model===model) || CARS[0];
-
-  const title = document.getElementById("title");
-  const sub = document.getElementById("sub");
-  const trimSel = document.getElementById("trim");
-  const priceEl = document.getElementById("price");
-  const bdEl = document.getElementById("breakdown");
-
-  title.textContent = `${car.model} 견적`;
-  sub.textContent = `${car.make} · ${car.type} · ${car.fuel} · (기준가 약 ${car.msrp}만원)`;
-
-  // 등급 옵션
-  TRIMS.forEach(t=>{
-    const op = document.createElement("option");
-    op.value=t; op.textContent=t;
-    trimSel.appendChild(op);
-  });
-
-  // 세그먼트 버튼 생성
-  function makeSeg(elId, items, defaultValue){
-    const el = document.getElementById(elId);
-    el.innerHTML="";
-    const st = {v: defaultValue};
-    items.forEach(v=>{
-      const b=document.createElement("button");
-      b.className="seg__btn"+(v===defaultValue?" is-active":"");
-      b.textContent=v;
-      b.onclick=()=>{
-        st.v=v;
-        Array.from(el.children).forEach(x=>x.classList.remove("is-active"));
-        b.classList.add("is-active");
-        update();
-      };
-      el.appendChild(b);
+    // 이미지: 대표님이 원하면 로컬 이미지로 바꿔도 됨
+    // 지금은 “플랫폼 느낌용”으로 간단한 배경 그라데이션만 깔아둠
+    document.querySelectorAll(".car__img").forEach(el=>{
+      el.style.background = "linear-gradient(135deg, rgba(61,18,255,.18), rgba(0,0,0,.06))";
     });
-    return st;
   }
 
-  const stPlan = makeSeg("segPlan", ["렌트","리스"], "렌트");
-  const stTerm = makeSeg("segTerm", ["48개월","60개월"], "60개월");
-  const stPay  = makeSeg("segPay",  ["선수금 30%","초기비용 0원"], "선수금 30%");
+  // Quick estimate -> cars로 조건 전달
+  const go = document.getElementById("goCars");
+  if(go){
+    const state = { type:"rent", term:"60", pay:"30", init:"0" };
 
-  function update(){
-    const plan = stPlan.v;                   // 렌트/리스
-    const term = stTerm.v.startsWith("48") ? 48 : 60;
-    const pay  = stPay.v.startsWith("선수금") ? "선수금30" : "초기0";
-    const trim = trimSel.value;
-
-    const est = estimateMonthly({
-      msrp: car.msrp,
-      make: car.make,
-      type: car.type,
-      plan,
-      term,
-      pay,
-      trim
+    document.addEventListener("click", (e)=>{
+      const b1 = e.target.closest("[data-qtype]");
+      if(b1){ setSeg(b1, "[data-qtype]"); state.type=b1.dataset.qtype; }
+      const b2 = e.target.closest("[data-qterm]");
+      if(b2){ setSeg(b2, "[data-qterm]"); state.term=b2.dataset.qterm; }
+      const b3 = e.target.closest("[data-qpay]");
+      if(b3){ setSeg(b3, "[data-qpay]"); state.pay=b3.dataset.qpay; }
+      const b4 = e.target.closest("[data-qinit]");
+      if(b4){ setSeg(b4, "[data-qinit]"); state.init=b4.dataset.qinit; }
     });
 
-    priceEl.textContent = fmtWon(est);
-
-    const r = residualRate({make:car.make, type:car.type, term});
-    const down = (pay==="선수금30") ? Math.round(car.msrp*0.30) : 0;
-
-    bdEl.innerHTML = `
-      <div>기준: ${plan} · ${term}개월 · ${pay==="선수금30" ? "선수금 30%" : "초기비용 0원"} · ${trim}</div>
-      <div>차량 기준가: 약 ${car.msrp}만원</div>
-      <div>선수금(추정): ${down}만원</div>
-      <div>잔존율(추정): ${(r*100).toFixed(0)}%</div>
-      <div class="tiny muted">※ 실제 금액은 금융사/프로모션/심사 조건에 따라 달라질 수 있습니다.</div>
-    `;
+    go.addEventListener("click", ()=>{
+      const q = (document.getElementById("q")?.value || "").trim();
+      const url = new URL(location.origin + location.pathname.replace("index.html","") + "cars.html");
+      if(q) url.searchParams.set("q", q);
+      url.searchParams.set("type", state.type);
+      url.searchParams.set("term", state.term);
+      url.searchParams.set("pay", state.pay);
+      url.searchParams.set("init", state.init);
+      location.href = url.toString();
+    });
   }
 
-  trimSel.onchange = update;
-  update();
-}
+  function setSeg(btn, selector){
+    document.querySelectorAll(selector).forEach(x=>x.classList.remove("is-active"));
+    btn.classList.add("is-active");
+  }
+  function fmt(n){
+    return (n||0).toLocaleString("ko-KR")+"원";
+  }
+})();
