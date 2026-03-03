@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PICKCAR | 차량 상세</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<header class="header">
+  <div class="wrap header__inner">
+    <a class="brand" href="index.html"><span class="brand__logo">PX</span><span class="brand__text"><b>PICKCAR</b><small>신차 종합 에이전시</small></span></a>
+    <nav class="nav">
+      <a href="index.html">홈</a>
+      <a href="cars.html" class="is-active">차량견적</a>
+      <a href="compare.html">구매방식 비교</a>
+      <a href="contact.html">즉시상담</a>
+      <a href="about.html">픽카소개</a>
+    </nav>
+    <a class="btn btn--primary" href="contact.html">빠른 상담</a>
+  </div>
+</header>
+
+<section class="page-title">
+  <div class="wrap">
+    <h1 id="title">차량</h1>
+    <p class="muted" id="sub">조건 선택 → 예상 월비용 확인</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="filters">
+      <div class="panel">
+        <b>조건 선택</b>
+        <div class="seg" style="margin-top:10px">
+          <button class="seg__btn is-active" data-plan="rent">렌트</button>
+          <button class="seg__btn" data-plan="lease">리스</button>
+        </div>
+
+        <div class="seg" style="margin-top:10px">
+          <button class="seg__btn" data-term="48">48개월</button>
+          <button class="seg__btn is-active" data-term="60">60개월</button>
+        </div>
+
+        <div class="seg" style="margin-top:10px">
+          <button class="seg__btn is-active" data-km="1">1만KM</button>
+          <button class="seg__btn" data-km="2">2만KM</button>
+        </div>
+
+        <div class="seg" style="margin-top:10px">
+          <button class="seg__btn is-active" data-deposit="30">선수금 30%</button>
+          <button class="seg__btn" data-deposit="0">선수금 0%</button>
+        </div>
+
+        <div class="seg" style="margin-top:10px">
+          <button class="seg__btn is-active" data-p="3">3피</button>
+          <button class="seg__btn" data-p="5">5피</button>
+        </div>
+
+        <p class="note">※ 표시 금액은 “예상”이며, 금융사/프로모션/심사 조건에 따라 변동됩니다.</p>
+      </div>
+
+      <div class="panel">
+        <b>예상 월 비용</b>
+        <h2 id="price" style="margin:12px 0;color:var(--primary);font-size:42px">-</h2>
+        <p class="muted" id="rule">기본: 렌트 · 60개월 · 1만KM · 선수금30 · 3피</p>
+        <div class="seg" style="margin-top:12px">
+          <a class="btn btn--primary" href="tel:1588-9097">전화로 확정 견적</a>
+          <a class="btn btn--kakao" href="contact.html">카카오 문의</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:14px">
+      <b>“24개 금융사 비교” 이미지 자리</b>
+      <p class="note">여기에 대표님이 준비한 이미지(PNG/JPG)를 업로드해서 넣으면 됩니다.</p>
+      <p class="note">예: <code>assets/finance/finance-24.png</code> 업로드 후 여기 img src만 교체</p>
+    </div>
+
+    <div style="margin-top:12px">
+      <a class="link" href="cars.html">← 다른 차량 보기</a>
+    </div>
+  </div>
+</section>
+
+<footer class="footer"><div class="wrap">© PICKCAR</div></footer>
+
+<script src="assets/js/data.js"></script>
+<script>
+  const DATA = window.PICKCAR_DATA?.cars || [];
+  const params = new URLSearchParams(location.search);
+  const id = params.get("id");
+  const car = DATA.find(c=>c.id===id);
+
+  const title = document.getElementById("title");
+  const sub = document.getElementById("sub");
+  const priceEl = document.getElementById("price");
+  const ruleEl = document.getElementById("rule");
+
+  if(!car){
+    title.textContent = "차량을 찾을 수 없습니다";
+  } else {
+    title.textContent = `${car.brand} ${car.model}`;
+    sub.textContent = `${car.trim||""} · ${car.fuel||""} · ${car.type||""}`;
+  }
+
+  let state = { plan:"rent", term:"60", km:"1", deposit:"30", p:"3" };
+
+  function getPrice(){
+    if(!car) return null;
+    const plan = state.plan;           // rent/lease
+    const pKey = state.p === "3" ? "p3" : "p5";
+    const dKey = state.deposit === "30" ? "d30" : "d0";
+    const tKey = state.term === "48" ? "t48" : "t60";
+    const kmKey = state.km === "1" ? "km1" : "km2";
+
+    return car?.prices?.[plan]?.[pKey]?.[dKey]?.[tKey]?.[kmKey] ?? null;
+  }
+
+  function render(){
+    const v = getPrice();
+    priceEl.textContent = (typeof v === "number") ? `${v}만원` : "데이터 준비중";
+    ruleEl.textContent = `선택: ${state.plan==="rent"?"렌트":"리스"} · ${state.term}개월 · ${state.km==="1"?"1만":"2만"}KM · 선수금${state.deposit}% · ${state.p}피`;
+  }
+
+  document.querySelectorAll("[data-plan],[data-term],[data-km],[data-deposit],[data-p]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const k = Object.keys(btn.dataset)[0];
+      document.querySelectorAll(`[data-${k}]`).forEach(b=>b.classList.remove("is-active"));
+      btn.classList.add("is-active");
+      state[k] = btn.dataset[k];
+      render();
+    });
+  });
+
+  render();
+</script>
+</body>
+</html>
