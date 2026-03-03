@@ -1,83 +1,78 @@
-// 차량 데이터는 "대략 견적"용입니다.
-// msrp(만원) 기준으로 잔존율/이자/상품계수로 예상 월 비용을 산출합니다.
-const CARS = [
-  // 현대
-  {make:"현대", model:"아반떼", type:"준중형", fuel:"가솔린", msrp:2300},
-  {make:"현대", model:"쏘나타", type:"중형", fuel:"가솔린", msrp:3000},
-  {make:"현대", model:"그랜저", type:"준대형", fuel:"가솔린", msrp:3800},
-  {make:"현대", model:"아이오닉5", type:"SUV·RV", fuel:"전기", msrp:5200},
-  {make:"현대", model:"투싼", type:"SUV·RV", fuel:"가솔린", msrp:3200},
-  {make:"현대", model:"싼타페", type:"SUV·RV", fuel:"가솔린", msrp:4000},
-  {make:"현대", model:"팰리세이드", type:"SUV·RV", fuel:"가솔린", msrp:4800},
-  {make:"현대", model:"스타리아", type:"대형승용", fuel:"디젤", msrp:4100},
+const cars = [
 
-  // 기아
-  {make:"기아", model:"K3", type:"준중형", fuel:"가솔린", msrp:2200},
-  {make:"기아", model:"K5", type:"중형", fuel:"가솔린", msrp:3000},
-  {make:"기아", model:"K8", type:"준대형", fuel:"가솔린", msrp:3800},
-  {make:"기아", model:"K9", type:"대형승용", fuel:"가솔린", msrp:6000},
-  {make:"기아", model:"스포티지", type:"SUV·RV", fuel:"가솔린", msrp:3300},
-  {make:"기아", model:"쏘렌토", type:"SUV·RV", fuel:"가솔린", msrp:4200},
-  {make:"기아", model:"카니발", type:"대형승용", fuel:"가솔린", msrp:4500},
-  {make:"기아", model:"EV6", type:"SUV·RV", fuel:"전기", msrp:5400},
+{brand:"현대",model:"캐스퍼",price:1460,rent:220000},
+{brand:"현대",model:"아반떼",price:1994,rent:230000},
+{brand:"현대",model:"아반떼 하이브리드",price:2617,rent:260000},
+{brand:"현대",model:"쏘나타",price:2900,rent:300000},
+{brand:"현대",model:"쏘나타 하이브리드",price:3300,rent:330000},
+{brand:"현대",model:"그랜저",price:3716,rent:380000},
+{brand:"현대",model:"그랜저 하이브리드",price:4434,rent:410000},
+{brand:"현대",model:"베뉴",price:2130,rent:240000},
+{brand:"현대",model:"코나",price:2500,rent:270000},
+{brand:"현대",model:"코나 하이브리드",price:3100,rent:290000},
+{brand:"현대",model:"투싼",price:2800,rent:280000},
+{brand:"현대",model:"투싼 하이브리드",price:3356,rent:300000},
+{brand:"현대",model:"싼타페",price:3500,rent:330000},
+{brand:"현대",model:"싼타페 하이브리드",price:4031,rent:340000},
+{brand:"현대",model:"팰리세이드",price:4380,rent:410000},
+{brand:"현대",model:"팰리세이드 하이브리드",price:5146,rent:430000},
+{brand:"현대",model:"스타리아",price:3500,rent:360000},
 
-  // 제네시스
-  {make:"제네시스", model:"G70", type:"중형", fuel:"가솔린", msrp:4700},
-  {make:"제네시스", model:"G80", type:"준대형", fuel:"가솔린", msrp:6500},
-  {make:"제네시스", model:"G90", type:"대형승용", fuel:"가솔린", msrp:9500},
-  {make:"제네시스", model:"GV70", type:"SUV·RV", fuel:"가솔린", msrp:5500},
-  {make:"제네시스", model:"GV80", type:"SUV·RV", fuel:"가솔린", msrp:7800},
+{brand:"기아",model:"모닝",price:1325,rent:220000},
+{brand:"기아",model:"레이",price:1400,rent:210000},
+{brand:"기아",model:"셀토스",price:2246,rent:250000},
+{brand:"기아",model:"K3",price:2100,rent:240000},
+{brand:"기아",model:"K5",price:2851,rent:300000},
+{brand:"기아",model:"K5 하이브리드",price:3393,rent:320000},
+{brand:"기아",model:"K8",price:3400,rent:350000},
+{brand:"기아",model:"K8 하이브리드",price:3800,rent:370000},
+{brand:"기아",model:"K9",price:6200,rent:650000},
+{brand:"기아",model:"스포티지",price:3000,rent:290000},
+{brand:"기아",model:"스포티지 하이브리드",price:3458,rent:310000},
+{brand:"기아",model:"쏘렌토",price:3778,rent:370000},
+{brand:"기아",model:"쏘렌토 하이브리드",price:4028,rent:330000},
+{brand:"기아",model:"카니발",price:3600,rent:360000},
+{brand:"기아",model:"카니발 하이브리드",price:4006,rent:380000},
+{brand:"기아",model:"EV6",price:4500,rent:390000},
+{brand:"기아",model:"EV9",price:7200,rent:550000},
 
-  // 쉐보레 / KGM / 르노
-  {make:"한국지엠", model:"트레일블레이저", type:"SUV·RV", fuel:"가솔린", msrp:2800},
-  {make:"한국지엠", model:"트래버스", type:"SUV·RV", fuel:"가솔린", msrp:5600},
-  {make:"KGM", model:"토레스", type:"SUV·RV", fuel:"가솔린", msrp:3200},
-  {make:"KGM", model:"렉스턴", type:"SUV·RV", fuel:"디젤", msrp:4800},
-  {make:"르노코리아", model:"QM6", type:"SUV·RV", fuel:"가솔린", msrp:3200},
-  {make:"르노코리아", model:"SM6", type:"중형", fuel:"가솔린", msrp:2800},
+{brand:"제네시스",model:"G70",price:4800,rent:440000},
+{brand:"제네시스",model:"G80",price:5990,rent:520000},
+{brand:"제네시스",model:"G90",price:9400,rent:950000},
+{brand:"제네시스",model:"GV70",price:5300,rent:490000},
+{brand:"제네시스",model:"GV80",price:7200,rent:620000},
+{brand:"제네시스",model:"GV80 쿠페",price:8200,rent:680000},
 
-  // 벤츠
-  {make:"벤츠", model:"C200", type:"중형", fuel:"가솔린", msrp:6900},
-  {make:"벤츠", model:"E200", type:"준대형", fuel:"가솔린", msrp:8600},
-  {make:"벤츠", model:"E300", type:"준대형", fuel:"가솔린", msrp:9900},
-  {make:"벤츠", model:"GLC220d", type:"SUV·RV", fuel:"디젤", msrp:8500},
-  {make:"벤츠", model:"GLE350", type:"SUV·RV", fuel:"가솔린", msrp:12500},
+{brand:"벤츠",model:"A클래스",price:4500,rent:520000},
+{brand:"벤츠",model:"C클래스",price:6500,rent:650000},
+{brand:"벤츠",model:"E클래스",price:8900,rent:890000},
+{brand:"벤츠",model:"S클래스",price:15000,rent:1500000},
+{brand:"벤츠",model:"GLC",price:7800,rent:820000},
+{brand:"벤츠",model:"GLE",price:11000,rent:1100000},
 
-  // BMW
-  {make:"BMW", model:"320i", type:"중형", fuel:"가솔린", msrp:6600},
-  {make:"BMW", model:"520i", type:"준대형", fuel:"가솔린", msrp:8600},
-  {make:"BMW", model:"530i", type:"준대형", fuel:"가솔린", msrp:9900},
-  {make:"BMW", model:"X3", type:"SUV·RV", fuel:"가솔린", msrp:8700},
-  {make:"BMW", model:"X5", type:"SUV·RV", fuel:"가솔린", msrp:12500},
+{brand:"BMW",model:"1시리즈",price:4300,rent:480000},
+{brand:"BMW",model:"3시리즈",price:6300,rent:630000},
+{brand:"BMW",model:"5시리즈",price:8800,rent:880000},
+{brand:"BMW",model:"7시리즈",price:15000,rent:1450000},
+{brand:"BMW",model:"X3",price:7200,rent:750000},
+{brand:"BMW",model:"X5",price:10500,rent:1050000},
 
-  // 볼보
-  {make:"볼보", model:"S60", type:"중형", fuel:"하이브리드", msrp:6200},
-  {make:"볼보", model:"S90", type:"준대형", fuel:"하이브리드", msrp:7800},
-  {make:"볼보", model:"XC60", type:"SUV·RV", fuel:"하이브리드", msrp:7400},
-  {make:"볼보", model:"XC90", type:"SUV·RV", fuel:"하이브리드", msrp:9800},
+{brand:"아우디",model:"A3",price:4500,rent:520000},
+{brand:"아우디",model:"A4",price:6000,rent:620000},
+{brand:"아우디",model:"A6",price:8200,rent:850000},
+{brand:"아우디",model:"Q3",price:6000,rent:650000},
+{brand:"아우디",model:"Q5",price:7500,rent:780000},
 
-  // 아우디
-  {make:"아우디", model:"A4", type:"중형", fuel:"가솔린", msrp:6200},
-  {make:"아우디", model:"A6", type:"준대형", fuel:"가솔린", msrp:8300},
-  {make:"아우디", model:"Q5", type:"SUV·RV", fuel:"가솔린", msrp:7800},
-  {make:"아우디", model:"Q7", type:"SUV·RV", fuel:"가솔린", msrp:11500},
+{brand:"볼보",model:"S60",price:5500,rent:580000},
+{brand:"볼보",model:"S90",price:7000,rent:820000},
+{brand:"볼보",model:"XC40",price:5200,rent:560000},
+{brand:"볼보",model:"XC60",price:6500,rent:680000},
+{brand:"볼보",model:"XC90",price:9000,rent:980000},
 
-  // 폭스바겐
-  {make:"폭스바겐", model:"골프", type:"준중형", fuel:"가솔린", msrp:4200},
-  {make:"폭스바겐", model:"티구안", type:"SUV·RV", fuel:"가솔린", msrp:5200},
+{brand:"렉서스",model:"ES300h",price:7000,rent:780000},
+{brand:"렉서스",model:"RX350",price:9000,rent:990000},
 
-  // 렉서스 / 토요타
-  {make:"렉서스", model:"ES300h", type:"준대형", fuel:"하이브리드", msrp:7200},
-  {make:"렉서스", model:"RX350h", type:"SUV·RV", fuel:"하이브리드", msrp:9800},
-  {make:"토요타", model:"캠리", type:"중형", fuel:"하이브리드", msrp:4700},
-  {make:"토요타", model:"RAV4", type:"SUV·RV", fuel:"하이브리드", msrp:5200},
+{brand:"테슬라",model:"모델3",price:5200,rent:730000},
+{brand:"테슬라",model:"모델Y",price:6000,rent:780000}
 
-  // 테슬라 / BYD / 폴스타
-  {make:"테슬라", model:"Model 3", type:"중형", fuel:"전기", msrp:5500},
-  {make:"테슬라", model:"Model Y", type:"SUV·RV", fuel:"전기", msrp:6500},
-  {make:"BYD", model:"ATTO 3", type:"SUV·RV", fuel:"전기", msrp:4600},
-  {make:"폴스타", model:"Polestar 2", type:"중형", fuel:"전기", msrp:6200},
 ];
-
-// 트림(등급)은 “디테일 과하게” 말고 3단만 깔아둡니다.
-const TRIMS = ["스탠다드", "프리미엄", "하이엔드"];
