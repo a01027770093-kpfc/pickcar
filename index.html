@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PICKCAR | 차량 비교 견적</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap topbar__inner">
+      <div class="brand">
+        <span class="dot"></span>
+        <div>
+          <div class="brand__title">PICKCAR</div>
+          <div class="brand__sub">신차 종합 에이전시 · 렌트/리스/할부</div>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <a class="nav__link is-active" href="./index.html">차량견적</a>
+        <a class="nav__link" href="./car.html">빠른견적</a>
+      </nav>
+
+      <a class="cta" href="#quick">빠른 상담</a>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <div class="hero__left">
+        <h1>
+          차량 클릭 → 조건 선택<br/>
+          <span class="accent">48/60개월 · 선수금30%/초기0</span><br/>
+          예상 월 비용을 바로 확인
+        </h1>
+        <p class="muted">
+          ※ 표시 금액은 “예상”이며 금융사/프로모션/심사 조건에 따라 변동됩니다.
+          정확 견적은 상담으로 최종 확정됩니다.
+        </p>
+
+        <div class="search">
+          <input id="q" type="search" placeholder="차량 검색 (예: 카니발, E클래스, 5시리즈)" />
+          <button id="btnReset" class="btn btn--ghost" type="button">초기화</button>
+        </div>
+
+        <div class="chips" id="chipsMake"></div>
+      </div>
+
+      <div class="hero__right">
+        <div class="panel">
+          <div class="panel__title">필터</div>
+
+          <div class="filters">
+            <div class="filter">
+              <div class="filter__label">월 대여료</div>
+              <div class="seg" id="segPrice"></div>
+            </div>
+
+            <div class="filter">
+              <div class="filter__label">차량 종류</div>
+              <div class="seg" id="segType"></div>
+            </div>
+
+            <div class="filter">
+              <div class="filter__label">연료</div>
+              <div class="seg" id="segFuel"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="quick" class="panel panel--cta">
+          <div class="panel__title">바로 상담</div>
+          <div class="ctaGrid">
+            <a class="btn btn--primary" href="tel:1588-9097">전화 1588-9097</a>
+            <a class="btn btn--kakao" href="#" onclick="alert('카카오 채널 링크를 여기에 넣으세요'); return false;">카카오 채널</a>
+            <a class="btn btn--ghost" href="#" onclick="alert('견적요청 폼(구글폼) 링크를 여기에 넣으세요'); return false;">견적 요청(폼)</a>
+          </div>
+          <div class="tiny muted" style="margin-top:10px;">
+            팁) “견적요청 폼”은 구글폼으로 무료로 만들면 됩니다.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section__head">
+        <h2>차량 목록</h2>
+        <div class="muted">차량을 클릭하면 견적 화면으로 이동합니다.</div>
+      </div>
+
+      <div id="resultMeta" class="resultMeta"></div>
+      <div id="grid" class="grid"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <div class="tiny muted">
+        © PICKCAR · 예상 금액 표기(변동 가능) · 정확 견적은 상담으로 확정
+      </div>
+    </div>
+  </footer>
+
+  <script src="./data.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
