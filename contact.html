@@ -1,31 +1,60 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>상담 및 창업 문의 | PICK CAR</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
-    <link rel="stylesheet" href="css/style.css"> <style>
-        /* [문의 페이지 전용 스타일] */
+<style>
+        /* 💡 대표님, 메뉴가 안 보일 수 없도록 배경색과 위치를 강제 고정했습니다 */
+        header {
+            position: fixed; top: 0; left: 0; width: 100%; height: 80px; 
+            background: #ffffff !important; /* 배경 흰색 강제 */
+            border-bottom: 1px solid #eeeeee; 
+            z-index: 9999; /* 무조건 맨 위로 */
+            display: flex; align-items: center;
+        }
+        .header-inner {
+            max-width: 1200px; margin: 0 auto; width: 100%; padding: 0 20px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .logo { font-size: 26px; font-weight: 900; color: #0052CC !important; text-decoration: none; }
+        .nav-links { display: flex; gap: 30px; }
+        .nav-links a { text-decoration: none; color: #333333 !important; font-weight: 700; font-size: 16px; }
+        .nav-links a:hover, .nav-links a.active { color: #0052CC !important; }
+
+        /* [문의 페이지 전용 스타일 - 여백 조정] */
         .contact-hero {
-            padding: 160px 0 80px;
-            background: linear-gradient(135deg, var(--bg-gray) 0%, #e2e8f0 100%);
+            padding: 140px 0 60px; /* 헤더 높이 고려해서 조정 */
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
             text-align: center;
         }
-        .contact-hero h1 { font-size: 48px; font-weight: 900; margin-bottom: 20px; letter-spacing: -1px; color: var(--text-main); }
-        .contact-hero p { font-size: 20px; color: var(--text-sub); }
+        /* ... 이하 기존 스타일 유지 ... */
+    </style>
+</head>
+<body>
 
-        .contact-section { padding: 100px 0; background: #fff; }
-        .contact-wrap {
-            max-width: 800px; margin: 0 auto;
-            background: #fff; border-radius: 24px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.08);
-            border: 1px solid var(--border); overflow: hidden;
-        }
+    <header>
+        <div class="header-inner">
+            <a href="index.html" class="logo">PICK CAR</a>
+            <nav class="nav-links">
+                <a href="index.html#about">픽카 소개</a>
+                <a href="index.html#car-list">차량견적</a>
+                <a href="contact.html" class="active">상담/창업문의</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        ```
+
+---
+
+### 🔍 왜 이렇게 바꿔야 하나요?
+
+1.  **`!important` 사용**: `style.css`에서 혹시라도 메뉴를 투명하게 하거나 숨겼을지 모르니, 무조건 보이게 "강제 명령"을 내린 겁니다.
+2.  **`z-index: 9999`**: 배경 이미지나 다른 상자들이 메뉴를 덮지 못하게 맨 앞으로 끄집어냈습니다.
+3.  **주소 매칭**: 그냥 `#about`이라고 쓰면 `contact.html` 안에서만 찾으려고 해서 안 움직입니다. **`index.html#about`**으로 써야 메인 페이지로 넘어가서 해당 위치를 찾아갑니다.
+
+**"대표님, 이제 `contact.html` 새로고침 하시면 상단에 파란 로고랑 메뉴가 시원하게 보일 겁니다!"** 혹시 메뉴 글자색을 픽카 블루로 통일하고 싶으시면 말씀하세요. 색상 코드만 싹 바꿔 드릴게요! 🚗💨
+
+**Would you like me to...**
+* 메뉴가 보이기 시작했다면, 이제 **모바일에서 손가락으로 누르기 편하게 메뉴 간격을 더 벌려 드릴까요?**
 
         /* 탭 메뉴 (견적 vs 창업) */
         .tab-menu { display: flex; border-bottom: 1px solid var(--border); background: var(--bg-gray); }
