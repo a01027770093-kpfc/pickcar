@@ -3,79 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PICK CAR | 최고 관리자 시스템</title>
+    <title>PICK CAR | 최고 관리자 통합 관리 시스템 (HQ-Master)</title>
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* [대표님 지정 디자인 시스템] */
+        /* * [디자인 시스템 설정]
+         * 대표님이 지정하신 PICK CAR 브랜드 블루 테마를 기반으로 
+         * 가독성과 시인성을 극대화한 관리자 전용 CSS입니다.
+         */
         :root {
-            --primary: #0052CC; --primary-dark: #003D99; --bg-body: #F0F2F5; --bg-sidebar: #2D3748;
-            --text-main: #2D3748; --text-muted: #718096; --white: #FFFFFF;
-            --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --primary: #0052CC;         /* 메인 브랜드 블루 */
+            --primary-dark: #003D99;    /* 강조 및 호버용 다크 블루 */
+            --primary-light: #EBF3FF;   /* 배경 및 태그용 연한 블루 */
+            --bg-body: #F0F2F5;         /* 메인 배경 회색 */
+            --bg-sidebar: #2D3748;      /* 사이드바 다크 그레이 */
+            --text-main: #2D3748;       /* 기본 텍스트 색상 */
+            --text-muted: #718096;      /* 보조/설명용 텍스트 색상 */
+            --white: #FFFFFF;           /* 기본 화이트 */
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* 카드 그림자 */
+            --border: #E2E8F0;          /* 구분선 색상 */
+            --danger: #E53E3E;          /* 경고/삭제 색상 */
+            --success: #38A169;         /* 완료/성공 색상 */
+            --warning: #D69E2E;         /* 대기/주의 색상 */
         }
 
+        /* [레이아웃 초기화] */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Pretendard', sans-serif; }
         body { background-color: var(--bg-body); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
 
-        /* [좌측 사이드바] */
-        .sidebar { width: 260px; background-color: var(--bg-sidebar); color: #fff; display: flex; flex-direction: column; flex-shrink: 0; }
-        .sidebar-header { padding: 30px 24px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .sidebar-header h2 { font-size: 24px; font-weight: 900; letter-spacing: 1px; }
-        .sidebar-header span { font-size: 11px; opacity: 0.5; }
+        /* [좌측 사이드바 디자인] */
+        .sidebar { width: 280px; background-color: var(--bg-sidebar); color: #fff; display: flex; flex-direction: column; flex-shrink: 0; z-index: 100; transition: all 0.3s ease; }
+        .sidebar-header { padding: 35px 24px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .sidebar-header h2 { font-size: 26px; font-weight: 900; letter-spacing: 1px; color: #fff; }
+        .sidebar-header span { font-size: 12px; opacity: 0.6; display: block; margin-top: 5px; }
         
-        .nav-menu { flex: 1; padding: 20px 0; overflow-y: auto; }
-        .nav-item { padding: 14px 24px; display: flex; align-items: center; gap: 12px; color: #A0AEC0; text-decoration: none; font-weight: 500; cursor: pointer; transition: 0.2s; border-left: 4px solid transparent; }
-        .nav-item:hover, .nav-item.active { background: rgba(255,255,255,0.05); color: #fff; font-weight: 700; border-left-color: var(--primary); }
-        .nav-item i { width: 20px; text-align: center; }
+        .nav-menu { flex: 1; padding: 25px 0; overflow-y: auto; }
+        .nav-item { padding: 16px 28px; display: flex; align-items: center; gap: 14px; color: #A0AEC0; text-decoration: none; font-weight: 600; cursor: pointer; transition: 0.3s; border-left: 5px solid transparent; }
+        .nav-item:hover { background: rgba(255,255,255,0.05); color: #fff; }
+        .nav-item.active { background: rgba(255,255,255,0.08); color: #fff; border-left-color: var(--primary); font-weight: 800; }
+        .nav-item i { width: 22px; text-align: center; font-size: 18px; }
 
-        /* [우측 메인 콘텐츠 영역] */
-        .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
-        .topbar { background: var(--white); height: 70px; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #E2E8F0; flex-shrink: 0; }
-        .topbar h3 { font-size: 18px; font-weight: 800; }
-        .profile { display: flex; align-items: center; gap: 12px; }
-        .avatar-box { background: var(--primary); color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 800; }
+        .logout-box { padding: 20px; border-top: 1px solid rgba(255,255,255,0.08); }
+        .btn-logout { width: 100%; padding: 12px; background: #4A5568; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; transition: 0.2s; }
+        .btn-logout:hover { background: #E53E3E; }
 
-        /* [내부 콘텐츠 구성] */
-        .content-wrap { padding: 30px 40px; }
-
-        /* [상단 4개 요약 카드] */
-        .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
-        .stat-card { background: var(--white); padding: 24px; border-radius: 12px; box-shadow: var(--shadow); display: flex; justify-content: space-between; align-items: center; }
-        .stat-label { font-size: 13px; color: var(--text-muted); font-weight: 600; margin-bottom: 8px; }
-        .stat-value { font-size: 26px; font-weight: 900; }
-        .stat-icon { width: 45px; height: 45px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
-
-        /* [섹션 카드 스타일] */
-        .section-card { background: var(--white); padding: 30px; border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 30px; }
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        /* [우측 메인 콘텐츠 레이아웃] */
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; position: relative; }
         
-        /* [테이블 공통 디자인] */
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 12px; color: var(--text-muted); font-size: 13px; border-bottom: 1px solid #EDF2F7; }
-        td { padding: 18px 12px; border-bottom: 1px solid #F7FAFC; font-size: 14px; vertical-align: middle; }
-        
-        /* [상태 선택박스] */
-        .status-select { padding: 6px 10px; border-radius: 6px; border: 1px solid #E2E8F0; font-size: 12px; font-weight: 800; cursor: pointer; outline: none; }
-        .status-select.new { color: #E53E3E; border-color: #FEB2B2; }
-        .status-select.ing { color: #3182CE; border-color: #90CDF4; }
-        .status-select.done { color: #38A169; border-color: #9AE6B4; }
+        /* [상단 툴바] */
+        .topbar { 
+            background: var(--white); height: 80px; padding: 0 45px; display: flex; 
+            align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); 
+            position: sticky; top: 0; z-index: 90; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .topbar h3 { font-size: 20px; font-weight: 900; color: #1A202C; }
+        .user-info { display: flex; align-items: center; gap: 15px; font-weight: 700; }
+        .ceo-badge { background: var(--primary); color: #fff; padding: 3px 8px; border-radius: 4px; font-size: 11px; }
 
-        /* [지점 생성 폼] */
-        .form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
-        .form-grid input { padding: 12px; border: 1px solid #E2E8F0; border-radius: 8px; outline: none; font-size: 14px; }
-        .form-grid input:focus { border-color: var(--primary); }
-        .btn-blue { background: var(--primary); color: #fff; border: none; padding: 14px 24px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 15px; }
-        .btn-blue:hover { background: var(--primary-dark); }
+        /* [내부 콘텐츠 영역] */
+        .content-wrap { padding: 40px; }
 
-        /* [섹션 노출 제어] */
-        .content-section { display: none; }
+        /* [섹션 제어용 클래스] */
+        .content-section { display: none; animation: fadeIn 0.4s ease-out; }
         .content-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* [요약 통계 카드 디자인] */
+        .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 25px; margin-bottom: 40px; }
+        .stat-card { background: var(--white); padding: 28px; border-radius: 16px; box-shadow: var(--shadow); display: flex; justify-content: space-between; align-items: center; transition: 0.3s; }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .stat-label { font-size: 14px; color: var(--text-muted); font-weight: 700; margin-bottom: 10px; }
+        .stat-value { font-size: 30px; font-weight: 900; color: #1A202C; }
+        .stat-icon { width: 55px; height: 55px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+
+        /* [섹션 카드 및 테이블 공통 스타일] */
+        .section-card { background: var(--white); padding: 35px; border-radius: 16px; box-shadow: var(--shadow); margin-bottom: 40px; border: 1px solid var(--border); }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .section-header h3 { font-size: 22px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 16px; color: var(--text-muted); font-size: 14px; border-bottom: 2px solid var(--border); font-weight: 800; }
+        td { padding: 20px 16px; border-bottom: 1px solid #F1F5F9; font-size: 15px; vertical-align: middle; }
+        tr:hover { background-color: #F8FAFC; }
+
+        /* [입력 폼 디자인 - 대표님 맞춤형] */
+        .form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 25px; }
+        .form-group { display: flex; flex-direction: column; gap: 8px; }
+        .form-group label { font-size: 14px; font-weight: 800; color: #4A5568; }
+        input, select, textarea { 
+            width: 100%; padding: 14px 18px; border: 1.5px solid var(--border); 
+            border-radius: 10px; font-size: 15px; outline: none; transition: 0.2s; 
+        }
+        input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(0,82,204,0.1); }
+        
+        /* [버튼 스타일] */
+        .btn-blue { background: var(--primary); color: #fff; border: none; padding: 16px 28px; border-radius: 10px; font-weight: 800; cursor: pointer; font-size: 16px; display: inline-flex; align-items: center; gap: 8px; transition: 0.3s; }
+        .btn-blue:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,82,204,0.3); }
+        .btn-red-mini { background: #FFF5F5; color: #E53E3E; border: 1px solid #FED7D7; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 800; }
+        .btn-red-mini:hover { background: #E53E3E; color: #fff; }
+
+        /* [배지 및 태그 디자인] */
+        .badge-new { background: var(--danger); color: #fff; font-size: 10px; padding: 2px 8px; border-radius: 20px; margin-left: auto; }
+        .status-badge { padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; display: inline-block; }
+        .status-new { background: #FFF5F5; color: #E53E3E; }
+        .status-ing { background: #EBF8FF; color: #3182CE; }
+        .status-done { background: #F0FFF4; color: #38A169; }
+
+        /* [상태 변경 셀렉트박스] */
+        .select-status { padding: 8px; border-radius: 6px; font-size: 13px; font-weight: 800; border: 1px solid var(--border); background: #fff; cursor: pointer; }
 
         /* [유틸리티] */
-        .badge-count { background: #E53E3E; color: #fff; font-size: 10px; padding: 2px 6px; border-radius: 10px; margin-left: auto; }
+        .today-count-box { background: var(--primary-light); color: var(--primary); padding: 4px 10px; border-radius: 20px; font-weight: 900; font-size: 12px; }
+        .empty-msg { padding: 50px; text-align: center; color: var(--text-muted); font-size: 16px; }
+        .loading-spinner { display: flex; justify-content: center; padding: 40px; }
     </style>
 </head>
 <body>
@@ -83,125 +126,119 @@
     <div class="sidebar">
         <div class="sidebar-header">
             <h2>PICK CAR</h2>
-            <span>최고 관리자 시스템</span>
+            <span>전국 통합 지점 관리 시스템 v3.0</span>
         </div>
         <div class="nav-menu">
             <div class="nav-item active" onclick="showSection('dash', this)">
                 <i class="fa-solid fa-chart-pie"></i> 대시보드
             </div>
-          <div class="nav-menu">
-    <div class="nav-item active" onclick="showSection('dash', this)">
-        <i class="fa-solid fa-chart-pie"></i> 대시보드
-    </div>
-    <div class="nav-item" onclick="showSection('cars', this)">
-        <i class="fa-solid fa-car"></i> 차량 DB 관리
-    </div>
-    <div class="nav-item" onclick="showSection('sites', this)">
-        <i class="fa-solid fa-building"></i> 대리점(지점) 관리
-    </div>
-    <div class="nav-item" onclick="showSection('inquiry', this)">
-        <i class="fa-solid fa-file-invoice"></i> 고객 문의 내역 
-        <span class="badge-count" id="badge-new-count">0</span>
-    </div>
-    <div class="nav-item" onclick="showSection('staff', this)">
-        <i class="fa-solid fa-users"></i> 본사 임직원 관리
-    </div>
-</div>
+            <div class="nav-item" onclick="showSection('cars', this)">
+                <i class="fa-solid fa-car-side"></i> 차량 DB 관리
+            </div>
+            <div class="nav-item" onclick="showSection('sites', this)">
+                <i class="fa-solid fa-building-circle-check"></i> 대리점(지점) 관리
+            </div>
+            <div class="nav-item" onclick="showSection('inquiry', this)">
+                <i class="fa-solid fa-clipboard-list"></i> 고객 문의 내역
+                <span class="badge-new" id="badge-total-new">0</span>
+            </div>
+            <div class="nav-item" onclick="showSection('staff', this)">
+                <i class="fa-solid fa-user-gear"></i> 본사 임직원 관리
+            </div>
+            <div class="nav-item" onclick="showSection('settings', this)">
+                <i class="fa-solid fa-sliders"></i> 시스템 환경 설정
+            </div>
         </div>
-        <div style="padding: 24px; border-top: 1px solid rgba(255,255,255,0.05);">
-            <button style="width:100%; padding:12px; background:rgba(255,255,255,0.1); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700;" onclick="location.reload()">로그아웃</button>
+        <div class="logout-box">
+            <button class="btn-logout" onclick="location.reload()"><i class="fa-solid fa-power-off"></i> 시스템 로그아웃</button>
         </div>
     </div>
 
     <div class="main-content">
         <div class="topbar">
-            <h3 id="topbar-title">대시보드 홈</h3>
-            <div class="profile">
-                <span style="font-weight: 700;">이종현 대표님</span>
-                <div class="avatar-box">CEO</div>
+            <h3 id="page-title">대시보드 실시간 현황</h3>
+            <div class="user-info">
+                <span>이종현 대표님</span>
+                <span class="ceo-badge">SUPER ADMIN</span>
             </div>
         </div>
-
+        
         <div class="content-wrap">
-            <div class="stat-grid">
-                <div class="stat-card">
-                    <div><div class="stat-label">오늘 신규 문의</div><div class="stat-value" id="st-today">0건</div></div>
-                    <div class="stat-icon" style="background:#FFF5F5; color:#E53E3E;"><i class="fa-solid fa-bell"></i></div>
-                </div>
-                <div class="stat-card">
-                    <div><div class="stat-label">등록된 특가 차량</div><div class="stat-value">158대</div></div>
-                    <div class="stat-icon" style="background:#EBF8FF; color:#3182CE;"><i class="fa-solid fa-car"></i></div>
-                </div>
-                <div class="stat-card">
-                    <div><div class="stat-label">운영 중인 대리점</div><div class="stat-value" id="st-sites">0곳</div></div>
-                    <div class="stat-icon" style="background:#F0FFF4; color:#38A169;"><i class="fa-solid fa-shop"></i></div>
-                </div>
-                <div class="stat-card">
-                    <div><div class="stat-label">이번 달 누적 계약</div><div class="stat-value">45건</div></div>
-                    <div class="stat-icon" style="background:#FFFBEB; color:#D69E2E;"><i class="fa-solid fa-pen-nib"></i></div>
-                </div>
-            </div>
 
             <div id="section-dash" class="content-section active">
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <div><p class="stat-label">오늘 신규 문의</p><h2 class="stat-value" id="st-today">0건</h2></div>
+                        <div class="stat-icon" style="background:#FFF5F5; color:#E53E3E;"><i class="fa-solid fa-bell"></i></div>
+                    </div>
+                    <div class="stat-card">
+                        <div><p class="stat-label">등록 특가 차량</p><h2 class="stat-value" id="st-cars">0대</h2></div>
+                        <div class="stat-icon" style="background:#EBF8FF; color:#3182CE;"><i class="fa-solid fa-car"></i></div>
+                    </div>
+                    <div class="stat-card">
+                        <div><p class="stat-label">활성화 대리점</p><h2 class="stat-value" id="st-sites">0곳</h2></div>
+                        <div class="stat-icon" style="background:#F0FFF4; color:#38A169;"><i class="fa-solid fa-building"></i></div>
+                    </div>
+                    <div class="stat-card">
+                        <div><p class="stat-label">이달 누적 실적</p><h2 class="stat-value">45건</h2></div>
+                        <div class="stat-icon" style="background:#FFFBEB; color:#D69E2E;"><i class="fa-solid fa-trophy"></i></div>
+                    </div>
+                </div>
+
                 <div class="section-card">
                     <div class="section-header">
-                        <h3>최근 접수된 문의 (전국 통합)</h3>
-                        <button onclick="fetchData()" style="padding:8px 16px; border:1px solid #ddd; border-radius:6px; background:#fff; cursor:pointer; font-size:12px;"><i class="fa-solid fa-rotate"></i> 데이터 갱신</button>
+                        <h3><i class="fa-solid fa-bolt" style="color:#FFD700;"></i> 실시간 접수 현황 (최근 5건)</h3>
+                        <button onclick="fetchData()" class="btn-blue" style="padding:10px 20px; font-size:13px;"><i class="fa-solid fa-arrows-rotate"></i> 새로고침</button>
                     </div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>상태 관리</th>
-                                <th>고객명</th>
-                                <th>연락처</th>
-                                <th>희망 차종 / 지역</th>
-                                <th>접수 지점</th>
-                                <th>접수일시</th>
-                            </tr>
-                        </thead>
-                        <tbody id="dash-list">
-                            </tbody>
+                    <table id="table-dash">
+                        <thead><tr><th>상태</th><th>고객명</th><th>연락처</th><th>차종/방식</th><th>접수지점</th><th>시간</th></tr></thead>
+                        <tbody></tbody>
                     </table>
                 </div>
             </div>
 
-          <div id="section-sites" class="content-section">
-    <div class="section-card">
-        <h3>🏗️ 신규 대리점(분양몰) 즉시 개통</h3>
-        <div class="form-grid">
-            <input type="text" id="site-title" placeholder="현장/지점명">
-            <input type="text" id="site-slug" placeholder="도메인 주소명 (예: wonju)">
-            <input type="text" id="site-phone" placeholder="대표번호">
-            <input type="text" id="site-ceo" placeholder="점주(대표자) 성함">
-            <input type="text" id="site-tg" placeholder="점주용 텔레그램 채팅 ID">
-            <input type="text" id="site-logo" placeholder="로고 URL">
-        </div>
-        <button class="btn-blue" onclick="createSite()">🚀 분양몰 개통하기</button>
-    </div>
-    <div class="section-card">
-        <h3>🏢 현재 운영 지점 리스트</h3>
-        <table id="site-list-table">
-            <thead><tr><th>지점명</th><th>주소</th><th>대표자</th><th>텔레그램ID</th><th>관리</th></tr></thead>
-            <tbody id="site-list"></tbody>
-        </table>
-    </div>
-</div>
-                    <button class="btn-blue" style="width:100%;" onclick="createSite()">🚀 분양몰 개통하기</button>
-                </div>
+            <div id="section-cars" class="content-section">
                 <div class="section-card">
-                    <h3>🏢 현재 운영 지점 리스트</h3>
-                    <table style="margin-top:20px;">
-                        <thead>
-                            <tr>
-                                <th>지점명</th>
-                                <th>접속 주소</th>
-                                <th>관리번호</th>
-                                <th>생성일</th>
-                                <th>관리</th>
-                            </tr>
-                        </thead>
-                        <tbody id="site-list">
-                            </tbody>
+                    <h3><i class="fa-solid fa-plus-circle"></i> 신규 특가 차량 데이터 등록</h3>
+                    <p style="margin-bottom:20px; color:var(--text-muted); font-size:14px;">등록된 차량은 모든 지점 홈페이지에 즉시 노출됩니다.</p>
+                    <div class="form-grid">
+                        <div class="form-group"><label>제조사/브랜드</label><input type="text" id="c-brand" placeholder="예: 현대자동차, GENESIS"></div>
+                        <div class="form-group"><label>모델명</label><input type="text" id="c-name" placeholder="예: 더 뉴 그랜저 하이브리드"></div>
+                        <div class="form-group"><label>월 렌탈료 (숫자만)</label><input type="number" id="c-price" placeholder="예: 450000"></div>
+                        <div class="form-group"><label>계약 조건</label><input type="text" id="c-cond" placeholder="예: 48개월 / 무보증"></div>
+                        <div class="form-group" style="grid-column: span 2;"><label>차량 이미지 주소 (URL)</label><input type="text" id="c-img" placeholder="https://..."></div>
+                    </div>
+                    <button class="btn-blue" onclick="addCar()"><i class="fa-solid fa-save"></i> 차량 DB 등록하기</button>
+                </div>
+
+                <div class="section-card">
+                    <h3><i class="fa-solid fa-list-check"></i> 현재 판매 중인 차량 목록</h3>
+                    <table id="table-cars">
+                        <thead><tr><th>이미지</th><th>브랜드</th><th>모델명</th><th>월 납입금</th><th>계약조건</th><th>삭제</th></tr></thead>
+                        <tbody id="car-list-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="section-sites" class="content-section">
+                <div class="section-card">
+                    <h3><i class="fa-solid fa-building-columns"></i> 신규 지점(분양몰) 즉시 개통</h3>
+                    <div class="form-grid">
+                        <div class="form-group"><label>지점명</label><input type="text" id="s-title" placeholder="예: 원주 중앙점"></div>
+                        <div class="form-group"><label>도메인 슬러그 (영문)</label><input type="text" id="s-slug" placeholder="예: wonju (wonju.pickcar.co.kr)"></div>
+                        <div class="form-group"><label>지점 대표번호</label><input type="text" id="s-phone" placeholder="예: 1588-9097"></div>
+                        <div class="form-group"><label>점주(대표자) 성함</label><input type="text" id="s-ceo" placeholder="예: 홍길동"></div>
+                        <div class="form-group"><label>점주 텔레그램 채팅 ID</label><input type="text" id="s-tg" placeholder="알림용 숫자 ID"></div>
+                        <div class="form-group"><label>지점 테마 컬러</label><input type="color" id="s-color" value="#0052CC" style="height:50px; padding:5px;"></div>
+                    </div>
+                    <button class="btn-blue" onclick="addSite()"><i class="fa-solid fa-rocket"></i> 지점 분양몰 즉시 개통</button>
+                </div>
+
+                <div class="section-card">
+                    <h3><i class="fa-solid fa-network-wired"></i> 전국 지점 운영 현황 및 오늘의 실적</h3>
+                    <table id="table-sites">
+                        <thead><tr><th>지점명</th><th>대표자</th><th>지점 주소</th><th>오늘의 문의</th><th>상태</th><th>관리</th></tr></thead>
+                        <tbody id="site-list-tbody"></tbody>
                     </table>
                 </div>
             </div>
@@ -209,201 +246,238 @@
             <div id="section-inquiry" class="content-section">
                 <div class="section-card">
                     <div class="section-header">
-                        <h3>📄 상담 신청 전체 리스트</h3>
-                        <button onclick="exportToExcel()" style="padding:8px 16px; background:#38A169; color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:12px;"><i class="fa-solid fa-file-excel"></i> 엑셀 다운로드</button>
+                        <h3><i class="fa-solid fa-inbox"></i> 전국 통합 상담 신청 데이터베이스</h3>
+                        <div style="display:flex; gap:10px;">
+                            <input type="text" id="search-inq" placeholder="이름 또는 지점명 검색" style="width:200px; padding:10px;">
+                            <button class="btn-blue" style="background:#38A169; font-size:13px;"><i class="fa-solid fa-file-excel"></i> 엑셀로 내보내기</button>
+                        </div>
                     </div>
-                    <table id="full-inquiry-table">
-                        <thead>
-                            <tr>
-                                <th>상태</th>
-                                <th>고객정보</th>
-                                <th>신청내역</th>
-                                <th>상담메모</th>
-                                <th>접수처</th>
-                                <th>일시</th>
-                            </tr>
-                        </thead>
-                        <tbody id="full-inquiry-list">
-                            </tbody>
+                    <table id="table-full-inquiry">
+                        <thead><tr><th>진행상태</th><th>고객정보</th><th>희망차종/방식</th><th>접수지점</th><th>메모</th><th>접수일시</th></tr></thead>
+                        <tbody id="inquiry-list-tbody"></tbody>
                     </table>
-                </div>
-            </div>
-
-            <div id="section-cars" class="content-section">
-                <div class="section-card">
-                    <h3>🚗 실시간 차량 데이터베이스</h3>
-                    <p style="padding:100px 0; text-align:center; color:#A0AEC0;">
-                        <i class="fa-solid fa-screwdriver-wrench" style="font-size:40px; margin-bottom:20px; display:block;"></i>
-                        차량 리스트 및 가격 연동 모듈을 준비 중입니다.
-                    </p>
                 </div>
             </div>
 
             <div id="section-staff" class="content-section">
                 <div class="section-card">
-                    <h3>👥 본사 임직원 및 가맹 점주 관리</h3>
-                    <p style="padding:100px 0; text-align:center; color:#A0AEC0;">
-                        <i class="fa-solid fa-user-shield" style="font-size:40px; margin-bottom:20px; display:block;"></i>
-                        점주님별 로그인 권한 제어 시스템을 구축 중입니다.
-                    </p>
+                    <h3>👥 본사 마스터 계정 관리</h3>
+                    <div class="empty-msg">
+                        <i class="fa-solid fa-shield-halved" style="font-size:40px; margin-bottom:15px; display:block;"></i>
+                        해당 기능은 <b>슈퍼 어드민(이종현 대표님)</b> 전용 보안 영역입니다.<br>
+                        현재 본사 계정 1개가 등록되어 운영 중입니다.
+                    </div>
                 </div>
             </div>
 
-        </div>
-    </div>
+            <div id="section-settings" class="content-section">
+                <div class="section-card">
+                    <h3><i class="fa-solid fa-gears"></i> 전국 공통 시스템 환경 설정</h3>
+                    <div style="margin-top:30px; max-width:600px;">
+                        <div class="form-group" style="margin-bottom:25px;">
+                            <label>통합 텔레그램 봇 토큰 (전 지점 공용)</label>
+                            <input type="password" value="8716905489:AAENMbkYCjMbsA302CTQdN3Cd7AEnzVYoqE" readonly>
+                        </div>
+                        <div class="form-group" style="margin-bottom:25px;">
+                            <label>본사 통합 모니터링 채팅방 ID</label>
+                            <input type="text" value="8716905489" readonly>
+                        </div>
+                        <div class="form-group" style="margin-bottom:25px;">
+                            <label>개인정보 처리방침 버전</label>
+                            <input type="text" value="v1.2 (최종 수정: 2026.03.10)">
+                        </div>
+                        <button class="btn-blue"><i class="fa-solid fa-check-double"></i> 설정값 전체 저장하기</button>
+                    </div>
+                </div>
+            </div>
 
-    <script>
+        </div> </div> <script>
+        // 수파베이스 보안 접속 정보
         const supabaseUrl = 'https://zewgvucgnpswdkghxdyt.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpld2d2dWNnbnBzd2RrZ2h4ZHl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwNzQ4MjMsImV4cCI6MjA4ODY1MDgyM30.WfBS_D3U-8c71Mu3eASp-mF_wuwe5MJp66UJKkPPZio';
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-        // 섹션 전환 함수
-        function showSection(id, el) {
-            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        /**
+         * [기능 1] 메뉴 전환 마스터 로직
+         * 메뉴 클릭 시 해당 화면만 렌더링하고 나머지는 완벽히 숨깁니다.
+         */
+        function showSection(sectionId, element) {
+            // 모든 섹션 제거
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(s => s.classList.remove('active'));
             
-            document.getElementById('section-' + id).classList.add('active');
-            el.classList.add('active');
+            // 모든 메뉴 버튼 비활성화
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(n => n.classList.remove('active'));
             
-            // 상단 타이틀 변경
-            const titles = { 'dash': '대시보드 홈', 'cars': '차량 DB 관리', 'sites': '대리점(지점) 관리', 'inquiry': '고객 문의 내역', 'staff': '본사 임직원 관리' };
-            document.getElementById('topbar-title').innerText = titles[id];
+            // 타겟 섹션 활성화
+            document.getElementById('section-' + sectionId).classList.add('active');
+            element.classList.add('active');
             
-            fetchData(); // 전환 시 데이터 갱신
-        }
-
-        // 전체 데이터 불러오기 (실시간 반영)
-        async function fetchData() {
-            // 1. 문의 내역 로드
-            const { data: inquiries, error: inqErr } = await supabaseClient
-                .from('contacts')
-                .select('*')
-                .order('created_at', { ascending: false });
-
-            // 2. 지점 리스트 로드
-            const { data: sites, error: siteErr } = await supabaseClient
-                .from('sites')
-                .select('*')
-                .order('created_at', { ascending: false });
-
-            if (inqErr || siteErr) { console.error("데이터 로드 실패"); return; }
-
-            // [상단 통계 업데이트]
-            const todayStr = new Date().toISOString().split('T')[0];
-            const todayCount = inquiries.filter(i => i.created_at.startsWith(todayStr)).length;
-            document.getElementById('st-today').innerText = todayCount + "건";
-            document.getElementById('st-sites').innerText = sites.length + "곳";
-            document.getElementById('badge-new-count').innerText = inquiries.filter(i => i.status === '신규접수').length;
-
-            // [대시보드 요약 테이블 렌더링]
-            renderDashTable(inquiries.slice(0, 5));
-
-            // [전체 문의 내역 렌더링]
-            renderFullInquiryTable(inquiries);
-
-            // [지점 관리 리스트 렌더링]
-            renderSiteTable(sites);
-        }
-
-        // 대시보드 테이블 렌더링
-        function renderDashTable(data) {
-            const tbody = document.getElementById('dash-list');
-            tbody.innerHTML = data.map(i => `
-                <tr>
-                    <td>
-                        <select onchange="updateInquiryStatus(${i.id}, this.value)" class="status-select ${getStatusClass(i.status)}">
-                            <option value="신규접수" ${i.status === '신규접수' ? 'selected' : ''}>신규접수</option>
-                            <option value="상담중" ${i.status === '상담중' ? 'selected' : ''}>상담중</option>
-                            <option value="계약완료" ${i.status === '계약완료' ? 'selected' : ''}>계약완료</option>
-                            <option value="부재/취소" ${i.status === '부재/취소' ? 'selected' : ''}>부재/취소</option>
-                        </select>
-                    </td>
-                    <td><strong>${i.user_name}</strong></td>
-                    <td>${i.user_phone}</td>
-                    <td>${i.car_item} / ${i.region}</td>
-                    <td>원주 본점</td>
-                    <td style="color:#A0AEC0;">${new Date(i.created_at).toLocaleString()}</td>
-                </tr>
-            `).join('');
-        }
-
-        // 전체 문의 테이블 렌더링
-        function renderFullInquiryTable(data) {
-            const tbody = document.getElementById('full-inquiry-list');
-            tbody.innerHTML = data.map(i => `
-                <tr>
-                    <td><span class="badge ${getStatusClass(i.status)}" style="padding:4px 8px; border-radius:4px; font-size:11px;">${i.status}</span></td>
-                    <td><strong>${i.user_name}</strong><br><small>${i.user_phone}</small></td>
-                    <td>${i.car_item} / ${i.region}</td>
-                    <td><div style="max-width:200px; font-size:12px; color:#718096;">${i.memo || '-'}</div></td>
-                    <td>${i.site_name || '픽카'}</td>
-                    <td style="font-size:12px; color:#A0AEC0;">${new Date(i.created_at).toLocaleString()}</td>
-                </tr>
-            `).join('');
-        }
-
-        // 지점 리스트 렌더링
-        function renderSiteTable(data) {
-            const tbody = document.getElementById('site-list');
-            tbody.innerHTML = data.map(s => `
-                <tr>
-                    <td><strong>${s.title}</strong></td>
-                    <td><a href="https://${s.slug}.pickcar.co.kr" target="_blank" style="color:var(--primary); text-decoration:none;">${s.slug}.pickcar.co.kr</a></td>
-                    <td>${s.phone}</td>
-                    <td style="color:#A0AEC0;">${new Date(s.created_at).toLocaleDateString()}</td>
-                    <td><button onclick="deleteSite(${s.id})" style="border:none; background:none; color:#E53E3E; cursor:pointer;"><i class="fa-solid fa-trash-can"></i></button></td>
-                </tr>
-            `).join('');
-        }
-
-        // 상태값에 따른 스타일 클래스 반환
-        function getStatusClass(status) {
-            if (status === '신규접수') return 'new';
-            if (status === '상담중') return 'ing';
-            return 'done';
-        }
-
-        // [상태 업데이트 실행]
-        async function updateInquiryStatus(id, newStatus) {
-            const { error } = await supabaseClient.from('contacts').update({ status: newStatus }).eq('id', id);
-            if (error) alert("상태 변경 실패!");
-            else fetchData();
-        }
-
-        // [신규 지점 생성 실행]
-        async function createSite() {
-            const title = document.getElementById('site-title').value;
-            const slug = document.getElementById('site-slug').value;
-            const phone = document.getElementById('site-phone').value;
-            const logo = document.getElementById('site-logo').value;
-            const color = document.getElementById('site-color').value;
-
-            if(!title || !slug) { alert("지점명과 도메인명은 필수입니다!"); return; }
-
-            const { error } = await supabaseClient.from('sites').insert([{ 
-                title, slug, phone, logo_url: logo, theme_color: color, status: 'active' 
-            }]);
-
-            if (error) alert("생성 실패: " + error.message);
-            else { 
-                alert("🎉 " + title + " 지점이 개통되었습니다!"); 
-                document.getElementById('site-title').value = '';
-                document.getElementById('site-slug').value = '';
-                fetchData(); 
-            }
-        }
-
-        // [지점 삭제 실행]
-        async function deleteSite(id) {
-            if(!confirm("해당 지점을 폐쇄하시겠습니까? 데이터가 모두 삭제됩니다.")) return;
-            await supabaseClient.from('sites').delete().eq('id', id);
+            // 상단 바 타이틀 업데이트
+            document.getElementById('page-title').innerText = element.innerText;
+            
+            // 데이터 최신화 로드
             fetchData();
         }
 
-        // 엑셀 다운로드 (간이 기능)
-        function exportToExcel() {
-            alert("엑셀 추출 엔진을 가동합니다. 잠시만 기다려주세요...");
-            // 실제 구현 시 XLSX 라이브러리 추가 필요
+        /**
+         * [기능 2] 데이터 통합 로드 엔진
+         * 수파베이스 DB에서 최신 정보를 긁어와 모든 테이블을 갱신합니다.
+         */
+        async function fetchData() {
+            try {
+                // 문의 내역, 지점 정보, 차량 DB 병렬 로딩
+                const [inqRes, siteRes, carRes] = await Promise.all([
+                    supabaseClient.from('contacts').select('*').order('created_at', { ascending: false }),
+                    supabaseClient.from('sites').select('*').order('created_at', { ascending: false }),
+                    supabaseClient.from('cars').select('*').order('created_at', { ascending: false })
+                ]);
+
+                const inq = inqRes.data || [];
+                const sites = siteRes.data || [];
+                const cars = carRes.data || [];
+
+                const todayString = new Date().toDateString();
+
+                // 2-1. 통계 바 및 대시보드 업데이트
+                const todayInqList = inq.filter(i => new Date(i.created_at).toDateString() === todayString);
+                document.getElementById('st-today').innerText = todayInqList.length + "건";
+                document.getElementById('st-cars').innerText = cars.length + "대";
+                document.getElementById('st-sites').innerText = sites.length + "곳";
+                document.getElementById('badge-total-new').innerText = inq.filter(i => i.status === '신규접수').length;
+
+                // 2-2. 대시보드 표 렌더링
+                renderDashboardTable(inq.slice(0, 5));
+
+                // 2-3. 전체 상담 명단 렌더링
+                renderFullInquiryTable(inq);
+
+                // 2-4. 차량 DB 목록 렌더링
+                renderCarTable(cars);
+
+                // 2-5. 전국 지점 현황 렌더링 (오늘 문의 건수 로직 포함)
+                renderSiteTable(sites, inq, todayString);
+
+            } catch (err) {
+                console.error("데이터 로딩 중 치명적 오류:", err);
+            }
+        }
+
+        // [헬퍼] 대시보드 표 그리기
+        function renderDashboardTable(data) {
+            const tbody = document.getElementById('table-dash').querySelector('tbody');
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-msg">오늘 접수된 상담 내역이 없습니다.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = data.map(i => `
+                <tr>
+                    <td><span class="status-badge ${i.status === '신규접수' ? 'status-new' : 'status-ing'}">${i.status}</span></td>
+                    <td><strong>${i.user_name}</strong></td>
+                    <td>${i.user_phone}</td>
+                    <td>${i.car_item} / ${i.contract_method || '-'}</td>
+                    <td>${i.site_name}</td>
+                    <td>${new Date(i.created_at).toLocaleTimeString()}</td>
+                </tr>
+            `).join('');
+        }
+
+        // [헬퍼] 전체 상담 명단 그리기
+        function renderFullInquiryTable(data) {
+            const tbody = document.getElementById('inquiry-list-tbody');
+            tbody.innerHTML = data.map(i => `
+                <tr>
+                    <td>
+                        <select onchange="updateInqStatus(${i.id}, this.value)" class="select-status">
+                            <option value="신규접수" ${i.status==='신규접수'?'selected':''}>신규접수</option>
+                            <option value="상담중" ${i.status==='상담중'?'selected':''}>상담중</option>
+                            <option value="계약완료" ${i.status==='계약완료'?'selected':''}>계약완료</option>
+                        </select>
+                    </td>
+                    <td><strong>${i.user_name}</strong><br><small>${i.user_phone}</small></td>
+                    <td>${i.car_item}<br><small style="color:var(--primary)">${i.contract_method || '방식 미정'}</small></td>
+                    <td>${i.site_name}</td>
+                    <td style="max-width:200px; font-size:12px; color:#666;">${i.memo || '-'}</td>
+                    <td>${new Date(i.created_at).toLocaleString()}</td>
+                </tr>
+            `).join('');
+        }
+
+        // [헬퍼] 차량 DB 리스트 그리기
+        function renderCarTable(data) {
+            const tbody = document.getElementById('car-list-tbody');
+            tbody.innerHTML = data.map(c => `
+                <tr>
+                    <td><img src="${c.img}" width="80" style="border-radius:8px;"></td>
+                    <td>${c.brand}</td>
+                    <td><strong>${c.name}</strong></td>
+                    <td>월 ${Number(c.price).toLocaleString()}원</td>
+                    <td>${c.cond}</td>
+                    <td><button class="btn-red-mini" onclick="deleteCar(${c.id})">삭제</button></td>
+                </tr>
+            `).join('');
+        }
+
+        // [헬퍼] 지점 운영 리스트 그리기 (오늘 문의 건수 실시간 계산)
+        function renderSiteTable(sites, inq, todayStr) {
+            const tbody = document.getElementById('site-list-tbody');
+            tbody.innerHTML = sites.map(s => {
+                const todayCount = inq.filter(i => i.site_name === s.title && new Date(i.created_at).toDateString() === todayStr).length;
+                return `
+                    <tr>
+                        <td><strong>${s.title}</strong></td>
+                        <td>${s.ceo_name}</td>
+                        <td style="color:var(--primary)">${s.slug}.pickcar.co.kr</td>
+                        <td><span class="today-count-box">${todayCount}건</span></td>
+                        <td><span class="status-badge status-done">정상운영</span></td>
+                        <td><button class="btn-red-mini">지점 폐쇄</button></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        /**
+         * [기능 3] DB 데이터 처리 로직 (추가/삭제/수정)
+         */
+        async function addCar() {
+            const b = document.getElementById('c-brand').value;
+            const n = document.getElementById('c-name').value;
+            const p = document.getElementById('c-price').value;
+            const c = document.getElementById('c-cond').value;
+            const img = document.getElementById('c-img').value;
+
+            if(!b || !n || !p) return alert("필수 항목을 입력하세요.");
+
+            await supabaseClient.from('cars').insert([{ brand:b, name:n, price:p, cond:c, img:img }]);
+            alert("신차 데이터가 전국 지점에 즉시 등록되었습니다.");
+            fetchData();
+        }
+
+        async function addSite() {
+            const t = document.getElementById('s-title').value;
+            const sl = document.getElementById('s-slug').value;
+            const ph = document.getElementById('s-phone').value;
+            const ceo = document.getElementById('s-ceo').value;
+            const tg = document.getElementById('s-tg').value;
+            const col = document.getElementById('s-color').value;
+
+            if(!t || !sl || !ceo) return alert("지점명, 슬러그, 대표자명은 필수입니다.");
+
+            await supabaseClient.from('sites').insert([{ title:t, slug:sl, phone:ph, ceo_name:ceo, telegram_id:tg, theme_color:col }]);
+            alert(`[${t}] 지점 분양몰이 성공적으로 개통되었습니다.`);
+            fetchData();
+        }
+
+        async function deleteCar(id) {
+            if(!confirm("해당 차량 데이터를 삭제하시겠습니까? 전 지점에서 즉시 사라집니다.")) return;
+            await supabaseClient.from('cars').delete().eq('id', id);
+            fetchData();
+        }
+
+        async function updateInqStatus(id, status) {
+            await supabaseClient.from('contacts').update({ status }).eq('id', id);
+            fetchData();
         }
 
         // 초기 데이터 로드
