@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>상담 및 창업 문의 | PICK CAR</title>
-    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
@@ -252,12 +252,68 @@
         // 초기 상태 설정 (신차 견적)
         switchTab('quote');
 
-        // 3. 폼스프리 + 텔레그램 연동 (대표님 정보 필수 입력!)
-        const TG_TOKEN = '여기에_대표님_텔레그램_봇토큰_입력';
-        const TG_CHAT_ID = '여기에_대표님_챗ID_입력';
+      // [수정 완료] 수파베이스 서버 저장 + 텔레그램 알림 통합 버전
+        const supabaseUrl = 'https://zewgvucgnpswdkghxdyt.supabase.co';
+        const supabaseKey = 'sb_publishable_r7KERAxppLzbhJw5mE9gOg_rvxpAXi7';
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+        const TG_TOKEN = '8716905489:AAENMbkYCjMbsA302CTQdN3Cd7AEnzVYoqE';
+        const TG_CHAT_ID = '여기에_대표님_챗ID_입력'; // <-- 본인의 숫자 ID로 꼭 바꿔주세요!
 
         document.getElementById('unifiedForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            if(!document.getElementById('privacyCheck').checked) {
+                alert("개인정보 수집 및 이용에 동의해주세요.");
+                return;
+            }
+
+            const form = e.target;
+            const btn = document.getElementById('submitBtn');
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 전송 중...';
+            btn.disabled = true;
+
+            try {
+                // 1. Supabase DB에 상담 내역 저장
+                const { error: dbError } = await supabaseClient
+                    .from('contacts')
+                    .insert([{
+                        user_name: data.name,
+                        user_phone: data.phone,
+                        car_item: data.type === '신차견적' ? data.car_name : '창업문의',
+                        region: data.type === '신차견적' ? '견적신청' : (data.region || '미기재'),
+                        memo: data.message,
+                        status: '신규접수'
+                    }]);
+
+                if (dbError) throw dbError;
+
+                // 2. 텔레그램 전송
+                let msg = data.type === '신차견적' 
+                    ? `🚨 [픽카 견적 문의]\n\n👤 성함: ${data.name}\n📞 연락처: ${data.phone}\n🚘 차종: ${data.car_name}\n💳 방식: ${data.buy_method}\n📅 시기: ${data.timing}\n💬 내용: ${data.message}`
+                    : `🏢 [픽카 창업 문의]\n\n👤 성함: ${data.name}\n📞 연락처: ${data.phone}\n📍 희망지역: ${data.region || '미기재'}\n💼 경험: ${data.experience || '미기재'}\n💬 내용: ${data.message}`;
+                
+                await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ chat_id: TG_CHAT_ID, text: msg })
+                });
+
+                alert("접수가 완료되었습니다. 담당자가 빠르게 연락드리겠습니다!");
+                form.reset();
+                switchTab('quote'); 
+
+            } catch(error) {
+                console.error("오류 발생:", error);
+                alert("접수 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+            } finally {
+                btn.innerHTML = '<i class="fa-regular fa-paper-plane"></i> 상담 신청 완료하기';
+                btn.disabled = false;
+            }
+        });
             
             // 개인정보 동의 체크 확인 (HTML required로 1차, 여기서 2차 방어)
             if(!document.getElementById('privacyCheck').checked) {
