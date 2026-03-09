@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">PICK CAR | 장기렌트·리스 최저가 견적</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root { --primary: #0052CC; --bg: #F8FAFC; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Pretendard', sans-serif; }
+        body { background: var(--bg); color: #1A1A1A; line-height: 1.6; }
+
+        /* [상단 헤더 - 점주 정보 노출] */
+        header { 
+            background: #fff; padding: 15px 5%; display: flex; justify-content: space-between; 
+            align-items: center; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid #E2E8F0;
+        }
+        .branch-info { display: flex; align-items: center; gap: 10px; }
+        .branch-name { font-size: 20px; font-weight: 900; color: var(--primary); }
+        .btn-call { 
+            background: var(--primary); color: #fff; padding: 10px 20px; border-radius: 8px; 
+            text-decoration: none; font-weight: 700; font-size: 15px;
+        }
+
+        /* [메인 비주얼] */
+        .hero { 
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&q=80&w=1920');
+            background-size: cover; background-position: center; padding: 100px 5%; text-align: center; color: #fff;
+        }
+        .hero h1 { font-size: 40px; font-weight: 900; margin-bottom: 15px; }
+        .hero p { font-size: 18px; opacity: 0.9; }
+
+        /* [핵심: 신차 리스트] */
+        .section-container { padding: 60px 5%; max-width: 1200px; margin: 0 auto; }
+        .section-title { font-size: 26px; font-weight: 800; margin-bottom: 30px; display: flex; align-items: center; gap: 10px; }
+        
+        .car-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; }
+        .car-card { background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.05); transition: 0.3s; }
+        .car-card:hover { transform: translateY(-5px); }
+        .car-img { width: 100%; height: 200px; object-fit: cover; }
+        .car-detail { padding: 25px; }
+        .car-price { font-size: 22px; font-weight: 900; color: var(--primary); margin-top: 10px; }
+
+        /* [상담 신청 폼] */
+        .form-section { background: #fff; padding: 50px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        input, select, textarea { width: 100%; padding: 15px; border-radius: 10px; border: 1px solid #E2E8F0; margin-bottom: 15px; font-size: 16px; outline: none; }
+        input:focus { border-color: var(--primary); }
+        .btn-submit { width: 100%; padding: 20px; background: var(--primary); color: #fff; border: none; border-radius: 10px; font-size: 18px; font-weight: 800; cursor: pointer; }
+
+        @media (max-width: 768px) { .hero h1 { font-size: 28px; } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="branch-info" id="logo-area">
+            <span class="branch-name" id="display-title">PICK CAR</span>
+            <span style="color:#CBD5E1; margin: 0 5px;">|</span>
+            <span style="font-size:14px; font-weight:600; color:#64748B;">공식 대리점</span>
+        </div>
+        <a href="tel:1588-9097" class="btn-call" id="main-call-btn">
+            <i class="fa-solid fa-phone"></i> <span id="display-phone">1588-9097</span>
+        </a>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1 id="hero-title">장기렌트·리스 전 금융사 비교</h1>
+            <p id="hero-desc">픽카와 함께라면 전국 최저가 견적이 가능합니다.</p>
+        </div>
+    </section>
+
+    <div class="section-container">
+        <h2 class="section-title"><i class="fa-solid fa-fire" style="color:#E53E3E;"></i> 이번 달 실시간 특가 차량</h2>
+        <div id="carList" class="car-grid">
+            </div>
+    </div>
+
+    <div class="section-container" id="inquiry">
+        <div class="form-section">
+            <h2 style="text-align:center; margin-bottom:30px;">⚡ 1분 만에 끝내는 맞춤 상담</h2>
+            <form id="inquiryForm">
+                <input type="text" name="name" placeholder="성함" required>
+                <input type="tel" name="phone" placeholder="연락처 (- 없이 입력)" required>
+                <select name="car_item">
+                    <option value="">관심 차종을 선택하세요</option>
+                    <option value="그랜저 하이브리드">그랜저 하이브리드</option>
+                    <option value="제네시스 GV80">제네시스 GV80</option>
+                    <option value="카니발">카니발</option>
+                    <option value="기타 상담">기타 상담</option>
+                </select>
+                <textarea name="memo" rows="3" placeholder="추가 문의사항 (선택)"></textarea>
+                <button type="submit" class="btn-submit">무료 견적 신청하기</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const supabaseUrl = 'https://zewgvucgnpswdkghxdyt.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpld2d2dWNnbnBzd2RrZ2h4ZHl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwNzQ4MjMsImV4cCI6MjA4ODY1MDgyM30.WfBS_D3U-8c71Mu3eASp-mF_wuwe5MJp66UJKkPPZio';
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+        let currentSite = { title: '픽카 본사', slug: 'main' };
+
+        // [핵심] 주소 읽기 및 테마 적용
+        async function init() {
+            const subdomain = window.location.hostname.split('.')[0];
+            if (subdomain !== 'www' && subdomain !== 'pickcar' && subdomain !== 'localhost') {
+                const { data } = await supabaseClient.from('sites').select('*').eq('slug', subdomain).single();
+                if (data) {
+                    currentSite = data;
+                    document.getElementById('display-title').innerText = data.title;
+                    document.getElementById('display-phone').innerText = data.phone;
+                    document.getElementById('main-call-btn').href = "tel:" + data.phone;
+                    document.documentElement.style.setProperty('--primary', data.theme_color);
+                    document.getElementById('page-title').innerText = data.title + " | PICK CAR";
+                }
+            }
+            renderCars();
+        }
+
+        // [데이터] 공통 차량 리스트
+        const cars = [
+            { name: "더 뉴 그랜저 하이브리드", brand: "현대자동차", price: "45", img: "https://images.unsplash.com/photo-1617469767053-d3b523a0b982?auto=format&fit=crop&q=80&w=600" },
+            { name: "제네시스 GV80", brand: "GENESIS", price: "89", img: "https://images.unsplash.com/photo-1629895020190-67292215c2be?auto=format&fit=crop&q=80&w=600" },
+            { name: "쏘렌토 하이브리드", brand: "기아", price: "42", img: "https://images.unsplash.com/photo-1630136602824-060799045864?auto=format&fit=crop&q=80&w=600" }
+        ];
+
+        function renderCars() {
+            document.getElementById('carList').innerHTML = cars.map(car => `
+                <div class="car-card">
+                    <img src="${car.img}" class="car-img" alt="${car.name}">
+                    <div class="car-detail">
+                        <small style="color:#64748B;">${car.brand}</small>
+                        <h3 style="font-size:18px; margin:5px 0;">${car.name}</h3>
+                        <div class="car-price">월 ${car.price}만원~</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // [상담 신청] 텔레그램 + DB 저장
+        document.getElementById('inquiryForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+
+            // 1. DB 저장 (어느 지점에서 왔는지 기록!)
+            await supabaseClient.from('contacts').insert([{
+                user_name: data.name, user_phone: data.phone,
+                car_item: data.car_item, memo: data.memo,
+                site_name: currentSite.title, status: '신규접수'
+            }]);
+
+            // 2. 텔레그램 알림
+            const msg = `🚨 [픽카 신규 문의]\n🏢 지점: ${currentSite.title}\n👤 고객: ${data.name}\n📞 번호: ${data.phone}\n🚘 항목: ${data.car_item}`;
+            fetch(`https://api.telegram.org/bot8716905489:AAENMbkYCjMbsA302CTQdN3Cd7AEnzVYoqE/sendMessage`, {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ chat_id: '8716905489', text: msg })
+            });
+
+            alert("상담 신청이 완료되었습니다!");
+            e.target.reset();
+        });
+
+        init();
+    </script>
+</body>
+</html>
