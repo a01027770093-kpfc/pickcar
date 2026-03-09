@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>PICK CAR 지점</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+
+body{
+font-family:Pretendard;
+margin:0;
+background:white;
+}
+
+.container{
+max-width:1000px;
+margin:auto;
+padding:40px;
+text-align:center;
+}
+
+h1{
+color:#0052CC;
+}
+
+button{
+
+background:#0052CC;
+color:white;
+padding:15px 30px;
+border:none;
+border-radius:10px;
+font-size:16px;
+}
+
+input{
+padding:15px;
+width:100%;
+margin-bottom:10px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1 id="branchTitle">픽카 지점</h1>
+
+<p id="branchIntro"></p>
+
+<h2>상담 신청</h2>
+
+<form id="contactForm">
+
+<input name="name" placeholder="이름" required>
+<input name="phone" placeholder="전화번호" required>
+<input name="car" placeholder="희망 차량">
+
+<button type="submit">상담 신청</button>
+
+</form>
+
+</div>
+
+
+<script>
+
+const urlParams = new URLSearchParams(window.location.search);
+const branchSlug = urlParams.get("b");
+
+const supabase = window.supabase.createClient(
+"SUPABASE_URL",
+"SUPABASE_ANON_KEY"
+);
+
+let branchData;
+
+async function loadBranch(){
+
+const {data,error} = await supabase
+.from("branches")
+.select("*")
+.eq("slug",branchSlug)
+.single();
+
+branchData=data;
+
+document.getElementById("branchTitle").innerText=data.title;
+document.getElementById("branchIntro").innerText=data.intro;
+
+}
+
+loadBranch();
+
+document.getElementById("contactForm").addEventListener("submit",async(e)=>{
+
+e.preventDefault();
+
+const formData=new FormData(e.target);
+
+const name=formData.get("name");
+const phone=formData.get("phone");
+const car=formData.get("car");
+
+await supabase.from("contacts").insert([{
+
+branch_slug:branchSlug,
+branch_title:branchData.title,
+user_name:name,
+user_phone:phone,
+car_item:car,
+status:"신규접수"
+
+}]);
+
+alert("상담 접수되었습니다");
+
+});
+
+</script>
+
+</body>
+</html>
