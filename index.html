@@ -10,21 +10,36 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* [1. 디자인 시스템 & 변수] */
-        :root {
-            --primary: #0052CC;         /* 기본 파란색 (지점별 자동 변경됨) */
-            --primary-dark: #003D99;
-            --text-main: #1A1A1A;
-            --text-sub: #666666;
-            --bg-light: #F8FAFC;
-            --white: #FFFFFF;
+        /* [공통 헤더 스타일 - 대표님 스타일 유지] */
+        header {
+            position: fixed; top: 0; left: 0; width: 100%; height: 80px;
+            background: #ffffff !important; border-bottom: 1px solid #eeeeee;
+            z-index: 9999; display: flex; align-items: center;
         }
+        .header-inner {
+            max-width: 1200px; margin: 0 auto; width: 100%; padding: 0 20px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        /* 💡 로고 링크를 클릭 가능하게 만들고 경로를 명확히 합니다 */
+        .logo { 
+            font-size: 26px; font-weight: 900; color: #0052CC !important; 
+            text-decoration: none; cursor: pointer;
+        }
+    </style>
+</head>
+<body>
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Pretendard', sans-serif; }
-        body { background-color: #fff; color: var(--text-main); line-height: 1.6; overflow-x: hidden; }
-        a { text-decoration: none; color: inherit; }
-
-        /* [2. 상단 헤더] */
+    <header>
+        <div class="header-inner">
+            <a href="./index.html" class="logo">PICK CAR</a>
+            
+            <nav class="nav-links" style="display: flex; gap: 30px;">
+                <a href="./index.html#about" style="text-decoration: none; color: #333; font-weight: 700;">픽카 소개</a>
+                <a href="./index.html#car-list" style="text-decoration: none; color: #333; font-weight: 700;">차량견적</a>
+                <a href="./contact.html" style="text-decoration: none; color: #0052CC; font-weight: 800;">상담/창업문의</a>
+            </nav>
+        </div>
+    </header>
         header { 
             width: 100%; height: 80px; background: rgba(255, 255, 255, 0.95); 
             backdrop-filter: blur(10px); display: flex; justify-content: space-between; 
