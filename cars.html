@@ -135,14 +135,27 @@
             }
         }
 
-        // 2. 필터 적용 및 렌더링 함수
+     // 2. 필터 적용 및 렌더링 함수 (수입차 해결 버전)
         function applyFilters() {
-            // 다중 필터 적용 (브랜드 AND 가격대)
             const filteredCars = allCars.filter(car => {
-                const passBrand = (currentFilter.brand === 'all' || car.brand === currentFilter.brand);
+                // [수정된 로직]
+                let passBrand = false;
+                
+                if (currentFilter.brand === 'all') {
+                    passBrand = true; // 전체보기
+                } else if (currentFilter.brand === '수입차') {
+                    // 국산차 브랜드 리스트에 없으면 모두 수입차로 간주!
+                    const domestic = ['현대', '기아', '제네시스', '현대자동차', '기아자동차'];
+                    passBrand = !domestic.includes(car.brand);
+                } else {
+                    // 현대, 기아, 제네시스 버튼 클릭 시 정확히 일치 확인
+                    passBrand = (car.brand === currentFilter.brand);
+                }
+
                 const passPrice = (car.price >= currentFilter.minPrice && car.price <= currentFilter.maxPrice);
                 return passBrand && passPrice;
             });
+            // ... 이 밑으로는 동일합니다 ...
 
             const list = document.getElementById('car-list');
             
