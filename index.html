@@ -294,24 +294,42 @@
                     status: '신규접수'
                 }]);
 
-                // [B] 대표님 텔레그램 전송
-                const adminText = `🚨 [픽카 문의접수]\n🏢 지점: ${branchInfo.title}\n👤 고객: ${data.name}\n📞 번호: ${data.phone}\n🚘 차종: ${data.car || '-'}`;
-                await fetch(`https://api.telegram.org/bot${ADMIN_TG_TOKEN}/sendMessage`, {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ chat_id: ADMIN_CHAT_ID, text: adminText })
-                });
+// 💡 [수정 위치] index.html의 폼 전송 try { ... } 블록 내부입니다.
 
-                // [C] 점주님 텔레그램 전송 (점주 ID가 따로 있을 때)
-                if(branchInfo.telegram_id && branchInfo.telegram_id !== ADMIN_CHAT_ID) {
-                    const branchText = `🔔 [PICK CAR ${branchInfo.title}] 신규 문의!\n👤 고객: ${data.name}\n📞 번호: ${data.phone}`;
-                    await fetch(`https://api.telegram.org/bot${ADMIN_TG_TOKEN}/sendMessage`, {
-                        method: 'POST', headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ chat_id: branchInfo.telegram_id, text: branchText })
-                    });
-                }
+try {
+    // [A] 수파베이스 저장 (어드민 확인용)
+    await supabaseClient.from('contacts').insert([{
+        user_name: data.name,
+        user_phone: data.phone,
+        car_item: data.car || '미지정',
+        memo: data.message,
+        site_name: branchInfo.title, // 💡 어느 지점인지 기록
+        status: '신규접수'
+    }]);
 
-                alert("성공적으로 접수되었습니다!");
-                e.target.reset();
+    // ---------------- [여기서부터 듀얼 알림 시작] ----------------
+
+    // [B] 대표님 텔레그램 알림 (지점명 포함)
+    const adminMsg = `🚨 [픽카 지점 신규문의]\n📍 지점: ${branchInfo.title}\n👤 고객: ${data.name}\n📞 번호: ${data.phone}`;
+    await fetch(`https://api.telegram.org/bot${ADMIN_TG_TOKEN}/sendMessage`, {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ chat_id: ADMIN_CHAT_ID, text: adminMsg })
+    });
+
+    // [C] 점주님 텔레그램 알림 (점주 ID가 따로 등록되어 있을 때만)
+    // branchInfo.telegram_id는 어드민에서 입력한 점주 번호입니다.
+    if(branchInfo.telegram_id && branchInfo.telegram_id !== ADMIN_CHAT_ID) {
+        const branchMsg = `🔔 [PICK CAR ${branchInfo.title}] 새 문의가 도착했습니다!\n👤 고객: ${data.name}\n📞 번호: ${data.phone}\n지금 바로 상담하세요!`;
+        await fetch(`https://api.telegram.org/bot${ADMIN_TG_TOKEN}/sendMessage`, {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ chat_id: branchInfo.telegram_id, text: branchMsg })
+        });
+    }
+    // ---------------- [듀얼 알림 끝] ----------------
+
+    alert("성공적으로 접수되었습니다!");
+    e.target.reset();
+}
             } catch(err) {
                 alert("오류 발생! 고객센터로 전화 주세요.");
             } finally {
