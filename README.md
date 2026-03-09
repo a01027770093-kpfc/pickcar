@@ -21,3 +21,13 @@ pick-car-homepage/
 │   └── analytics.js        # 방문 통계 스크립트 (기존 코드 개조)
 │
 └── images/                 # 차량 사진 및 로고 리소스
+
+
+🎨 픽카(PICK CAR) 디자인 가이드
+Main Color: #FFFFFF (순백색 - 깨끗함)
+
+Sub Color: #0056b3 (신뢰감 있는 딥 블루)
+
+Accent Color: #e7f1ff (부드러운 연파랑 - 강조 및 배경용)
+
+Font: 'Pretendard' (현대적이고 가독성이 좋은 서체)
