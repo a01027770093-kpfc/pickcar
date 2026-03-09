@@ -3,376 +3,329 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PICK CAR | 강원도 1등 신차 종합 에이전시</title>
-    <meta name="description" content="강원도 최초 24개 금융사 실시간 최저가 비교! 대리점보다 저렴한 픽카에서 정직한 3% 수수료로 신차를 만나보세요.">
+    <title id="dynamic-title">PICK CAR | 정직한 3% 수수료 신차 종합 에이전시</title>
     
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
 
     <style>
-        /* [1. 디자인 시스템 - White & Blue] */
+        /* [1. 디자인 시스템 & 변수] */
         :root {
-            --primary: #0052CC;      /* 신뢰의 픽카 블루 */
+            --primary: #0052CC;         /* 기본 파란색 (지점별 자동 변경됨) */
             --primary-dark: #003D99;
-            --primary-light: #E7F1FF;
-            --accent: #E63946;       /* 강조 레드 */
             --text-main: #1A1A1A;
             --text-sub: #666666;
-            --bg-gray: #F8F9FA;
-            --border: #EEEEEE;
+            --bg-light: #F8FAFC;
+            --white: #FFFFFF;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Pretendard', sans-serif; }
-        body { color: var(--text-main); line-height: 1.6; overflow-x: hidden; }
+        body { background-color: #fff; color: var(--text-main); line-height: 1.6; overflow-x: hidden; }
         a { text-decoration: none; color: inherit; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-        .section-title { font-size: 36px; font-weight: 800; text-align: center; margin-bottom: 50px; }
-        .section-title span { color: var(--primary); }
 
-        /* [2. 헤더 (고정형)] */
-        header {
-            position: fixed; top: 0; width: 100%; height: 80px;
-            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border); z-index: 1000;
-            display: flex; align-items: center; transition: 0.3s;
+        /* [2. 상단 헤더] */
+        header { 
+            width: 100%; height: 80px; background: rgba(255, 255, 255, 0.95); 
+            backdrop-filter: blur(10px); display: flex; justify-content: space-between; 
+            align-items: center; padding: 0 8%; position: fixed; top: 0; z-index: 1000; 
+            border-bottom: 1px solid #f0f0f0; 
         }
-        header.scrolled { box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
-        .header-inner { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-        .logo { font-size: 28px; font-weight: 900; color: var(--primary); letter-spacing: -1px; }
-        .nav { display: flex; gap: 40px; }
-        .nav a { font-weight: 600; font-size: 16px; cursor: pointer; transition: 0.2s; }
-        .nav a:hover, .nav a.active { color: var(--primary); }
-        .btn-call { background: var(--primary); color: #fff; padding: 10px 24px; border-radius: 50px; font-weight: 700; font-size: 15px; }
-
-        /* [3. 히어로 섹션 (메인 비주얼)] */
-        .hero {
-            padding: 160px 0 100px;
-            background: linear-gradient(135deg, #fff 0%, var(--primary-light) 100%);
-            text-align: center; position: relative; overflow: hidden;
+        .logo { font-size: 26px; font-weight: 900; color: var(--primary); letter-spacing: -1px; }
+        .nav-links { display: flex; gap: 35px; }
+        .nav-links a { font-size: 15px; font-weight: 600; color: #444; transition: 0.2s; }
+        .nav-links a:hover { color: var(--primary); }
+        .header-btn { 
+            background: var(--primary); color: #fff; padding: 12px 25px; 
+            border-radius: 50px; font-weight: 700; font-size: 14px; 
+            display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(0,82,204,0.2);
         }
-        .hero-badge { display: inline-block; background: var(--primary); color: #fff; padding: 6px 16px; border-radius: 30px; font-size: 14px; font-weight: 700; margin-bottom: 20px; }
-        .hero h1 { font-size: 54px; font-weight: 900; line-height: 1.3; margin-bottom: 20px; letter-spacing: -2px; }
-        .hero p { font-size: 20px; color: var(--text-sub); margin-bottom: 40px; }
-        .hero-btn { display: inline-block; background: var(--text-main); color: #fff; padding: 18px 40px; border-radius: 12px; font-size: 18px; font-weight: 700; transition: 0.3s; }
-        .hero-btn:hover { background: var(--primary); transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,82,204,0.2); }
 
-        /* [4. 픽카 추천 차량 (8대 노출)] */
-        .car-section { padding: 100px 0; background: #fff; }
-        .car-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
-        .car-card { border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: 0.3s; cursor: pointer; background: #fff; }
-        .car-card:hover { border-color: var(--primary); transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.08); }
-        .car-img-wrap { background: var(--bg-gray); padding: 30px; position: relative; }
-        .car-img { width: 100%; height: 140px; object-fit: contain; }
-        .car-badge { position: absolute; top: 15px; left: 15px; background: var(--accent); color: #fff; font-size: 11px; font-weight: bold; padding: 4px 10px; border-radius: 20px; }
-        .car-info { padding: 20px; }
-        .car-brand { font-size: 12px; color: var(--primary); font-weight: 700; }
-        .car-name { font-size: 18px; font-weight: 800; margin: 5px 0 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .car-price { font-size: 22px; font-weight: 900; color: var(--text-main); }
-        .car-price span { font-size: 14px; font-weight: 500; color: var(--text-sub); }
+        /* [3. 히어로 섹션 (대표님 이미지 디자인)] */
+        .hero { padding: 180px 5% 120px; text-align: center; background: linear-gradient(180deg, #f0f7ff 0%, #ffffff 100%); }
+        .hero-badge { 
+            background: var(--primary); color: #fff; padding: 6px 18px; border-radius: 50px; 
+            font-size: 13px; font-weight: 800; display: inline-block; margin-bottom: 25px;
+        }
+        .hero h1 { font-size: 52px; font-weight: 900; line-height: 1.3; color: #111; margin-bottom: 25px; letter-spacing: -1.5px; }
+        .hero p { font-size: 19px; color: #555; margin-bottom: 45px; font-weight: 500; }
+        .btn-estimate { 
+            background: #1A1A1A; color: #fff; padding: 20px 45px; border-radius: 12px; 
+            font-size: 19px; font-weight: 800; display: inline-block; transition: 0.3s;
+        }
+        .btn-estimate:hover { transform: translateY(-3px); background: #000; }
 
-        /* [5. 픽카 브랜드 소개 (슬로건 -> 임직원)] */
-        .brand-section { padding: 100px 0; background: var(--bg-gray); }
-        .slogan-box { text-align: center; max-width: 800px; margin: 0 auto 80px; }
-        .slogan-box h2 { font-size: 42px; font-weight: 900; color: var(--primary); margin-bottom: 20px; }
-        .slogan-box p { font-size: 18px; color: var(--text-sub); line-height: 1.8; }
+        /* [4. 블루 스탯 섹션] */
+        .stats-section { background: var(--primary); padding: 70px 8%; display: flex; justify-content: space-around; color: #fff; }
+        .stat-item { text-align: center; }
+        .stat-item h2 { font-size: 44px; font-weight: 900; margin-bottom: 8px; }
+        .stat-item p { font-size: 16px; opacity: 0.9; font-weight: 600; }
+
+        /* [5. 회사/지점 소개 영역 (가변형)] */
+        .intro-container { padding: 100px 8%; max-width: 1300px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1.2fr; gap: 80px; align-items: center; }
+        .intro-img { border-radius: 30px; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.15); }
+        .intro-img img { width: 100%; display: block; }
         
-        /* 대표 소개 (좌 사진, 우 정보) */
-        .ceo-card { display: flex; background: #fff; border-radius: 24px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.05); }
-        .ceo-img { width: 40%; background: url('https://via.placeholder.com/500x600?text=CEO+Photo') center/cover; min-height: 400px; }
-        .ceo-info { width: 60%; padding: 50px; display: flex; flex-direction: column; justify-content: center; }
-        .ceo-info h3 { font-size: 32px; font-weight: 800; margin-bottom: 10px; }
-        .ceo-info h3 span { font-size: 18px; color: var(--primary); margin-right: 10px; }
-        .ceo-desc { font-size: 16px; color: var(--text-sub); margin-bottom: 30px; line-height: 1.8; }
-        .sns-btns { display: flex; gap: 15px; }
-        .sns-btn { padding: 12px 24px; border-radius: 8px; font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
-        .btn-naver { background: #03C75A; color: #fff; }
-        .btn-youtube { background: #FF0000; color: #fff; }
-        .sns-btn:hover { opacity: 0.9; transform: translateY(-2px); }
+        .intro-text h2 { font-size: 34px; font-weight: 800; margin-bottom: 30px; color: #111; }
+        .branch-profile { background: #fdfdfd; padding: 35px; border-radius: 20px; border: 1px solid #eee; border-left: 6px solid var(--primary); }
+        .profile-row { display: flex; padding: 18px 0; border-bottom: 1px dashed #ddd; }
+        .profile-row:last-child { border: none; }
+        .p-label { width: 120px; font-weight: 800; color: var(--primary); font-size: 15px; }
+        .p-value { font-weight: 700; color: #333; font-size: 16px; }
 
-        /* [6. 통합 상담 폼 (고객 & 창업)] */
-        .contact-section { padding: 100px 0; background: #fff; }
-        .contact-wrap { max-width: 700px; margin: 0 auto; background: #fff; border: 1px solid var(--border); padding: 50px; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.05); }
-        .form-group { margin-bottom: 20px; }
-        .form-label { display: block; font-weight: 700; margin-bottom: 8px; font-size: 14px; }
-        .form-input { width: 100%; padding: 16px; border: 1px solid var(--border); border-radius: 8px; font-size: 16px; background: var(--bg-gray); transition: 0.3s; }
-        .form-input:focus { border-color: var(--primary); background: #fff; outline: none; }
-        .submit-btn { width: 100%; padding: 20px; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-size: 18px; font-weight: 800; cursor: pointer; margin-top: 10px; transition: 0.3s; }
-        .submit-btn:hover { background: var(--primary-dark); }
+        /* [6. 실시간 차량 견적 (기존 디자인)] */
+        .car-section { padding: 80px 8%; background: #fff; }
+        .section-header { text-align: center; margin-bottom: 50px; }
+        .section-header h2 { font-size: 30px; font-weight: 900; }
+        
+        .car-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 35px; }
+        .car-card { border-radius: 24px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.06); border: 1px solid #f0f0f0; transition: 0.3s; }
+        .car-card:hover { transform: translateY(-10px); }
+        .car-img-box { position: relative; height: 210px; overflow: hidden; background: #f9f9f9; }
+        .car-img-box img { width: 100%; height: 100%; object-fit: contain; padding: 20px; }
+        .car-tag { position: absolute; top: 20px; left: 20px; background: #FF3B30; color: #fff; padding: 5px 12px; border-radius: 6px; font-weight: 800; font-size: 12px; }
+        .car-detail { padding: 30px; }
+        .car-brand { font-size: 14px; color: #999; margin-bottom: 8px; font-weight: 600; }
+        .car-name { font-size: 21px; font-weight: 800; margin-bottom: 10px; }
+        .car-cond { font-size: 14px; color: #666; margin-bottom: 20px; }
+        .car-price { font-size: 26px; font-weight: 900; color: var(--primary); border-top: 1px solid #f0f0f0; padding-top: 20px; }
+        .car-price span { font-size: 15px; color: #444; font-weight: 500; }
 
-        /* 반응형 */
-        @media (max-width: 1024px) {
-            .car-grid { grid-template-columns: repeat(2, 1fr); }
-            .ceo-card { flex-direction: column; }
-            .ceo-img { width: 100%; height: 300px; min-height: auto; }
-            .ceo-info { width: 100%; padding: 30px; }
-            .hero h1 { font-size: 40px; }
+        /* [7. 상담 신청 폼] */
+        .form-section { padding: 100px 8%; background: #f8fbff; }
+        .form-wrapper { max-width: 650px; margin: 0 auto; background: #fff; padding: 60px; border-radius: 35px; box-shadow: 0 30px 60px rgba(0,0,0,0.08); }
+        .form-wrapper h2 { text-align: center; font-size: 32px; font-weight: 900; margin-bottom: 40px; }
+        
+        .field-group { margin-bottom: 25px; }
+        .field-group label { display: block; font-weight: 700; margin-bottom: 10px; color: #333; font-size: 15px; }
+        input, select, textarea { width: 100%; padding: 16px; border: 1.5px solid #E2E8F0; border-radius: 14px; font-size: 16px; transition: 0.3s; outline: none; }
+        input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 5px rgba(0,82,204,0.1); }
+        
+        .submit-btn { 
+            width: 100%; padding: 22px; background: var(--primary); color: #fff; border: none; 
+            border-radius: 14px; font-size: 19px; font-weight: 800; cursor: pointer; transition: 0.3s;
         }
-        @media (max-width: 768px) {
-            .nav { display: none; } /* 모바일 메뉴는 추후 추가 */
-            .car-grid { grid-template-columns: 1fr; }
-        }
+        .submit-btn:hover { background: var(--primary-dark); transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,82,204,0.2); }
+
+        /* [8. 플로팅 버튼] */
+        .floating-wrap { position: fixed; bottom: 40px; right: 40px; z-index: 9999; display: flex; flex-direction: column; gap: 15px; }
+        .f-btn { width: 65px; height: 65px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: 0 8px 25px rgba(0,0,0,0.2); transition: 0.3s; }
+        .f-btn:hover { transform: scale(1.1) rotate(-5deg); }
     </style>
 </head>
 <body>
 
-    <header id="header">
-        <div class="container header-inner">
-            <a href="#" class="logo">PICK CAR</a>
-            <nav class="nav">
-                <a href="#brand">픽카 소개</a>
-                <a href="#cars">실시간 차량견적</a>
-                <a href="#guide">구매 가이드</a>
-                <a href="#review">출고후기</a>
-                <a href="#contact">상담/창업문의</a>
-            </nav>
-            <a href="tel:1588-9097" class="btn-call"><i class="fa-solid fa-phone"></i> 1588-9097</a>
-        </div>
+    <header>
+        <a href="/" class="logo" id="main-logo">PICK CAR</a>
+        <nav class="nav-links">
+            <a href="#about">픽카 소개</a>
+            <a href="#car-list">실시간 차량견적</a>
+            <a href="#inquiry">상담/창업문의</a>
+        </nav>
+        <a href="tel:1588-9097" class="header-btn" id="top-phone-link">
+            <i class="fa-solid fa-phone"></i> <span id="top-phone-text">1588-9097</span>
+        </a>
     </header>
 
     <section class="hero">
-        <div class="container" data-aos="fade-up">
-            <div class="hero-badge">강원도 최초 24개 금융사 실시간 최저가 비교</div>
-            <h1>대리점보다 저렴한 이유,<br><span>정직한 3% 수수료</span>입니다.</h1>
-            <p>허위견적 없이 오직 정직한 숫자로만 승부하는 신차 종합 에이전시</p>
-            <a href="#contact" class="hero-btn">실시간 최저가 견적받기</a>
-        </div>
+        <div class="hero-badge" id="hero-badge-text">강원도 최초 24개 금융사 실시간 최저가 비교</div>
+        <h1 id="hero-h1">대리점보다 저렴한 이유,<br>정직한 3% 수수료입니다.</h1>
+        <p>허위견적 없이 오직 정직한 숫자로만 승부하는 신차 종합 에이전시</p>
+        <a href="#inquiry" class="btn-estimate">실시간 최저가 견적받기</a>
     </section>
-<section class="trust-section" style="padding: 60px 0; background: var(--primary); color: #fff;">
-        <div class="container" style="display: flex; justify-content: space-around; text-align: center; flex-wrap: wrap; gap: 30px;">
-            <div data-aos="fade-up">
-                <h2 style="font-size: 48px; font-weight: 900; margin-bottom: 10px;"><span class="counter" data-target="1580">0</span>건+</h2>
-                <p style="font-size: 16px; opacity: 0.8;">누적 출고 대수</p>
-            </div>
-            <div data-aos="fade-up" data-aos-delay="100">
-                <h2 style="font-size: 48px; font-weight: 900; margin-bottom: 10px;"><span class="counter" data-target="24">0</span>곳</h2>
-                <p style="font-size: 16px; opacity: 0.8;">제휴 금융사</p>
-            </div>
-            <div data-aos="fade-up" data-aos-delay="200">
-                <h2 style="font-size: 48px; font-weight: 900; margin-bottom: 10px;"><span class="counter" data-target="98">0</span>%</h2>
-                <p style="font-size: 16px; opacity: 0.8;">평균 승인률</p>
-            </div>
+
+    <div class="stats-section">
+        <div class="stat-item"><h2>1112건+</h2><p>누적 출고 대수</p></div>
+        <div class="stat-item"><h2>24곳</h2><p>제휴 금융사</p></div>
+        <div class="stat-item"><h2>98%</h2><p>평균 승인률</p></div>
+    </div>
+
+    <section class="intro-container" id="about">
+        <div class="intro-img">
+            <img src="https://images.unsplash.com/photo-1560179707-f14e90ef3623?q=80&w=1200" alt="office">
         </div>
-        <script>
-            // 카운팅 애니메이션 실행 스크립트 (이 섹션 안에서만 동작)
-            document.addEventListener('DOMContentLoaded', () => {
-                const counters = document.querySelectorAll('.counter');
-                const observer = new IntersectionObserver((entries) => {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting) {
-                            const target = +entry.target.getAttribute('data-target');
-                            const speed = 200; // 숫자가 올라가는 속도 조절
-                            const updateCount = () => {
-                                const count = +entry.target.innerText;
-                                const inc = target / speed;
-                                if (count < target) {
-                                    entry.target.innerText = Math.ceil(count + inc);
-                                    setTimeout(updateCount, 1);
-                                } else {
-                                    entry.target.innerText = target;
-                                }
-                            };
-                            updateCount();
-                            observer.unobserve(entry.target); // 한 번만 실행
-                        }
-                    });
-                }, { threshold: 0.5 });
-                counters.forEach(counter => observer.observe(counter));
-            });
-        </script>
-    </section>
-    <section id="cars" class="car-section">
-        <div class="container">
-            <h2 class="section-title">이달의 <span>PICK CAR</span> 특가</h2>
-            <div id="car-list" class="car-grid">
-                <div style="grid-column: 1/-1; text-align: center; padding: 50px; color: #999;">
-                    <i class="fa-solid fa-spinner fa-spin fa-2x"></i><br><br>특가 차량 정보를 불러오는 중입니다...
+        <div class="intro-text">
+            <h2>지점을 소개합니다.</h2>
+            <div class="branch-profile">
+                <div class="profile-row">
+                    <div class="p-label">지점명</div>
+                    <div class="p-value" id="view-b-name">PICK CAR 본사</div>
+                </div>
+                <div class="profile-row">
+                    <div class="p-label">대표자</div>
+                    <div class="p-value" id="view-ceo">이종현</div>
+                </div>
+                <div class="profile-row">
+                    <div class="p-label">전문분야</div>
+                    <div class="p-value" id="view-special">신차 에이전시 및 비즈니스 솔루션</div>
+                </div>
+                <div class="profile-row">
+                    <div class="p-label">상담시간</div>
+                    <div class="p-value">평일/주말 09:00 ~ 21:00</div>
+                </div>
+                <div class="profile-row">
+                    <div class="p-label">고객센터</div>
+                    <div class="p-value" id="view-phone">1588-9097</div>
                 </div>
             </div>
         </div>
     </section>
 
-    <section id="brand" class="brand-section">
-        <div class="container">
-            <div class="slogan-box" data-aos="fade-up">
-                <h2>"정직이 최선의 견적이다"</h2>
-                <p>픽카는 눈속임 할인이나 허위 견적으로 고객을 기만하지 않습니다.<br>
-                국내 24개 모든 금융사의 조건을 실시간으로 분석하여, 대표님의 상황에 맞는<br>
-                가장 합리적이고 투명한 3% 수수료 견적만을 제안합니다.</p>
+    <section class="car-section" id="car-list">
+        <div class="section-header"><h2>🚙 실시간 추천 특가 차량</h2></div>
+        <div class="car-grid" id="carGrid">
             </div>
+    </section>
 
-            <div class="ceo-card" data-aos="fade-up" data-aos-delay="100">
-                <div class="https://search.pstatic.net/common?type=b&size=3000&quality=100&direct=true&src=http%3A%2F%2Fsstatic.naver.net%2Fpeople%2FprofileImg%2F667e6e4f-5103-41ed-a86a-7892bb008382.jpg"></div>
-                <div class="ceo-info">
-                    <h3><span>대표/CEO</span>이종현</h3>
-                    <p class="ceo-desc">
-                        안녕하십니까, 신차 종합 에이전시 픽카(PICK CAR) 대표 이종현입니다.<br><br>
-                        자동차를 구매하는 것은 단순한 소비가 아닌, 고객님의 비즈니스와 일상에 새로운 원동력을 더하는 중요한 결정입니다. 저는 그 중요한 순간에 '신뢰'라는 가치를 더하고 싶습니다.<br><br>
-                        강원도 최초로 도입한 24개 금융사 비교 시스템을 통해, 전국 어디서나 대리점보다 저렴하고 빠른 출고를 약속드립니다. 픽카 프랜차이즈와 함께 성공적인 비즈니스 파트너가 되겠습니다.
-                    </p>
-                    <div class="sns-btns">
-                        <a href="https://search.naver.com/search.naver?where=nexearch&sm=tab_etc&mra=bjky&x_csa=%7B%22fromUi%22%3A%22kb%22%7D&pkid=1&os=34265504&qvt=0&query=%EA%B9%90%EB%B6%80%ED%8C%8C%ED%8A%B8%EB%84%88%EC%8A%A4%20%EC%9D%B4%EC%A2%85%ED%98%84" target="_blank" class="sns-btn btn-naver"><i class="fa-solid fa-n"></i> 네이버 인물등록</a>
-                        <a href="https://youtube.com/channel/UCSO3yDJinvaH8QyOj4iKZMg?si=f8KFWrPYbmFDFVyt" target="_blank" class="sns-btn btn-youtube"><i class="fa-brands fa-youtube"></i> 유튜브 채널</a>
-                    </div>
+    <section class="form-section" id="inquiry">
+        <div class="form-wrapper">
+            <h2 id="form-main-title">실시간 상담 신청</h2>
+            <form id="inquiryForm" action="https://formspree.io/f/xvgopkzw" method="POST">
+                <div class="field-group">
+                    <label>문의 구분</label>
+                    <select name="type" id="typeSelect">
+                        <option value="신차견적">신차 최저가 견적 문의</option>
+                        <option value="창업문의">지점 개설/창업 문의</option>
+                        <option value="기타상담">기타 비즈니스 상담</option>
+                    </select>
                 </div>
-            </div>
+                <div class="field-group">
+                    <label>성함</label>
+                    <input type="text" name="name" placeholder="이름을 입력하세요" required>
+                </div>
+                <div class="field-group">
+                    <label>연락처</label>
+                    <input type="tel" name="phone" placeholder="연락처를 입력하세요" required>
+                </div>
+                <div class="field-group" id="carInputGroup">
+                    <label>관심 차종</label>
+                    <input type="text" name="car" placeholder="관심 있는 차량 모델을 적어주세요">
+                </div>
+                <div class="field-group">
+                    <label>추가 문의내역</label>
+                    <textarea name="message" rows="4" placeholder="상담 시 참고할 내용을 적어주세요"></textarea>
+                </div>
+                <button type="submit" class="submit-btn" id="submitBtn">상담 신청하기</button>
+            </form>
         </div>
     </section>
 
-    <section id="contact" class="contact-section">
-        <div class="container">
-            <h2 class="section-title">픽카 <span>실시간 문의</span></h2>
-            <div class="contact-wrap" data-aos="zoom-in">
-                <form id="inquiryForm" action="https://formspree.io/f/meelygdy" method="POST">
-                    <div class="form-group">
-                        <label class="form-label">문의 유형</label>
-                        <select name="type" class="form-input" required>
-                            <option value="신차견적">🚗 신차 최저가 견적 문의</option>
-                            <option value="창업문의">🏢 픽카 프랜차이즈 창업 문의</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">성함 (또는 상호명)</label>
-                        <input type="text" name="name" class="form-input" placeholder="홍길동" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">연락처</label>
-                        <input type="tel" name="phone" class="form-input" placeholder="010-0000-0000" required>
-                    </div>
-                    <div class="form-group" id="carInputGroup">
-                        <label class="form-label">희망 차종 (선택)</label>
-                        <input type="text" name="car" class="form-input" placeholder="예: 그랜저 하이브리드">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">문의 내용</label>
-                        <textarea name="message" class="form-input" rows="4" placeholder="궁금하신 점을 편하게 남겨주세요." required></textarea>
-                    </div>
-                    <button type="submit" class="submit-btn" id="submitBtn">상담 신청하기</button>
-                </form>
-            </div>
-        </div>
-    </section>
-
-    <footer style="background: #1A1A1A; color: #888; padding: 60px 0; text-align: center;">
-        <div class="container">
-            <h2 style="color: var(--primary); font-weight: 900; margin-bottom: 10px;">PICK CAR</h2>
-            <p>강원도 원주시 | 신차 종합 에이전시 픽카 | 대표: 이종현</p>
-            <p style="margin-top: 20px; font-size: 14px; opacity: 0.5;">© 2026 PICK CAR Franchise. All Rights Reserved.</p>
-        </div>
-    </footer>
-
-    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
     <script>
-        // 1. 애니메이션 초기화
-        AOS.init({ duration: 800, once: true });
+        const supabaseUrl = 'https://zewgvucgnpswdkghxdyt.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpld2d2dWNnbnBzd2RrZ2h4ZHl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwNzQ4MjMsImV4cCI6MjA4ODY1MDgyM30.WfBS_D3U-8c71Mu3eASp-mF_wuwe5MJp66UJKkPPZio';
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-        // 2. 헤더 스크롤 효과
-        window.addEventListener('scroll', () => {
-            const header = document.getElementById('header');
-            if (window.scrollY > 50) header.classList.add('scrolled');
-            else header.classList.remove('scrolled');
-        });
+        let branchInfo = { title: 'PICK CAR 본사', phone: '1588-9097', telegram_id: '8716905489' };
 
-        // 3. 구글 시트 데이터 연동 (딱 8대만 메인에 노출!)
-        const SHEET_ID = '1id0jWui5_lKnnk0j_fAZMUnNFjv92xUUNVIHZGXr1vE';
-        const DATA_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
+        // 1. 도메인 인식 및 데이터 갈아끼우기
+        async function loadBranchData() {
+            const hostname = window.location.hostname;
+            const subdomain = hostname.split('.')[0];
 
-        fetch(DATA_URL).then(res => res.text()).then(text => {
-            const json = JSON.parse(text.substr(47).slice(0, -2));
-            // 데이터를 가격순으로 정렬한 뒤, 상위 8개만 자름 (slice(0,8))
-            let carData = json.table.rows.map(row => ({
-                brand: row.c[0]?.v || "기타",
-                name: row.c[1]?.v || "차종 미정",
-                cond: row.c[2]?.v || "상담 후 결정",
-                price: Number(row.c[3]?.v) || 0,
-                img: row.c[4]?.v || "https://via.placeholder.com/300x200?text=이미지준비중"
-            })).sort((a,b) => a.price - b.price).slice(0, 8); 
+            if (subdomain !== 'www' && subdomain !== 'pickcar' && subdomain !== 'localhost') {
+                const { data, error } = await supabaseClient.from('sites').select('*').eq('slug', subdomain).single();
+                if (data && !error) {
+                    branchInfo = data;
+                    updateUI(data);
+                }
+            }
+            renderCars();
+        }
+
+        function updateUI(data) {
+            document.title = `${data.title} | 픽카 공식 대리점`;
+            document.getElementById('main-logo').innerText = data.title;
+            document.getElementById('top-phone-text').innerText = data.phone;
+            document.getElementById('top-phone-link').href = "tel:" + data.phone;
             
-            renderMainCars(carData);
-        }).catch(err => {
-            document.getElementById('car-list').innerHTML = '<p style="grid-column:1/-1; text-align:center;">데이터를 불러올 수 없습니다.</p>';
-        });
+            document.getElementById('view-b-name').innerText = data.title;
+            document.getElementById('view-ceo').innerText = data.ceo_name || '이종현';
+            document.getElementById('view-special').innerText = data.staff_info || '신차 에이전시 전문가 그룹';
+            document.getElementById('view-phone').innerText = data.phone;
+            
+            document.documentElement.style.setProperty('--primary', data.theme_color || '#0052CC');
+        }
 
-        function renderMainCars(data) {
-            const list = document.getElementById('car-list');
-            list.innerHTML = data.map((car, i) => `
-                <div class="car-card" data-aos="fade-up" data-aos-delay="${i * 100}" onclick="document.getElementById('contact').scrollIntoView({behavior: 'smooth'})">
-                    <div class="car-img-wrap">
-                        <div class="car-badge">HOT</div>
-                        <img src="${car.img}" class="car-img" alt="${car.name}">
+        // 2. 차량 리스트 (대표님 원본 데이터 유지)
+        const cars = [
+            { name: "더 뉴 그랜저 하이브리드", brand: "현대자동차", price: 450000, cond: "무보증 / 48개월", img: "https://images.unsplash.com/photo-1617469767053-d3b523a0b982?q=80&w=800" },
+            { name: "제네시스 GV80", brand: "GENESIS", price: 890000, cond: "선납금 30% / 60개월", img: "https://images.unsplash.com/photo-1629895020190-67292215c2be?q=80&w=800" },
+            { name: "쏘렌토 하이브리드", brand: "기아", price: 420000, cond: "무보증 / 60개월", img: "https://images.unsplash.com/photo-1630136602824-060799045864?q=80&w=800" }
+        ];
+
+        function renderCars() {
+            document.getElementById('carGrid').innerHTML = cars.map(car => `
+                <div class="car-card">
+                    <div class="car-img-box">
+                        <div class="car-tag">HOT</div>
+                        <img src="${car.img}" alt="${car.name}">
                     </div>
-                    <div class="car-info">
+                    <div class="car-detail">
                         <div class="car-brand">${car.brand}</div>
                         <h3 class="car-name">${car.name}</h3>
-                        <p style="font-size:13px; color:var(--text-sub); margin-bottom:10px;">${car.cond}</p>
+                        <p class="car-cond">${car.cond}</p>
                         <div class="car-price">월 ${car.price.toLocaleString()}<span>원~</span></div>
                     </div>
                 </div>
             `).join('');
         }
 
-        // 4. 문의 유형에 따른 폼 UI 변경 (창업 문의 시 차종 입력란 숨김)
-        const typeSelect = document.querySelector('select[name="type"]');
-        const carInputGroup = document.getElementById('carInputGroup');
-        typeSelect.addEventListener('change', (e) => {
-            if(e.target.value === '창업문의') {
-                carInputGroup.style.display = 'none';
-            } else {
-                carInputGroup.style.display = 'block';
-            }
-        });
-
-        // 5. 텔레그램 + 폼스프리 동시 전송 로직
-        const TG_TOKEN = '8716905489:AAENMbkYCjMbsA302CTQdN3Cd7AEnzVYoqE';
-        const TG_CHAT_ID = '8716905489';
+        // 3. 상담 신청 (DB저장 + 듀얼 텔레그램)
+        const ADMIN_TG_TOKEN = '8716905489:AAENMbkYCjMbsA302CTQdN3Cd7AEnzVYoqE';
+        const ADMIN_CHAT_ID = '8716905489';
 
         document.getElementById('inquiryForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const form = e.target;
             const btn = document.getElementById('submitBtn');
-            const formData = new FormData(form);
+            const formData = new FormData(e.target);
             const data = Object.fromEntries(formData.entries());
 
-            btn.innerText = "전송 중입니다...";
+            btn.innerText = "전송 중...";
             btn.disabled = true;
 
             try {
-                // 1) 폼스프리로 이메일 전송
-                await fetch(form.action, {
-                    method: 'POST',
-                    body: formData,
-                    headers: { 'Accept': 'application/json' }
+                // [A] 수파베이스 저장
+                await supabaseClient.from('contacts').insert([{
+                    user_name: data.name,
+                    user_phone: data.phone,
+                    car_item: data.car || '미지정',
+                    memo: data.message,
+                    site_name: branchInfo.title,
+                    status: '신규접수'
+                }]);
+
+                // [B] 대표님 텔레그램 전송
+                const adminText = `🚨 [픽카 문의접수]\n🏢 지점: ${branchInfo.title}\n👤 고객: ${data.name}\n📞 번호: ${data.phone}\n🚘 차종: ${data.car || '-'}`;
+                await fetch(`https://api.telegram.org/bot${ADMIN_TG_TOKEN}/sendMessage`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ chat_id: ADMIN_CHAT_ID, text: adminText })
                 });
 
-                // 2) 텔레그램으로 실시간 푸시 알림 전송
-                const msg = `🚨 [픽카 신규 문의]\n\n📌 구분: ${data.type}\n👤 이름: ${data.name}\n📞 번호: ${data.phone}\n🚘 차종: ${data.car || '해당없음'}\n💬 내용: ${data.message}`;
-                
-                // 토큰이 입력되어 있을 때만 텔레그램 전송 시도
-                if(TG_TOKEN !== '8716905489:AAENMbkYCjMbsA302CTQdN3Cd7AEnzVYoqE') {
-                    await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ chat_id: TG_CHAT_ID, text: msg })
+                // [C] 점주님 텔레그램 전송 (점주 ID가 따로 있을 때)
+                if(branchInfo.telegram_id && branchInfo.telegram_id !== ADMIN_CHAT_ID) {
+                    const branchText = `🔔 [PICK CAR ${branchInfo.title}] 신규 문의!\n👤 고객: ${data.name}\n📞 번호: ${data.phone}`;
+                    await fetch(`https://api.telegram.org/bot${ADMIN_TG_TOKEN}/sendMessage`, {
+                        method: 'POST', headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ chat_id: branchInfo.telegram_id, text: branchText })
                     });
                 }
 
-                alert("성공적으로 접수되었습니다. 빠르게 연락드리겠습니다!");
-                form.reset();
-            } catch(error) {
-                alert("전송 중 오류가 발생했습니다. 전화(1588-9097)로 문의해주세요.");
+                alert("성공적으로 접수되었습니다!");
+                e.target.reset();
+            } catch(err) {
+                alert("오류 발생! 고객센터로 전화 주세요.");
             } finally {
                 btn.innerText = "상담 신청하기";
                 btn.disabled = false;
             }
         });
+
+        loadBranchData();
     </script>
-    <div class="floating-btns" style="position: fixed; bottom: 30px; right: 30px; z-index: 9999; display: flex; flex-direction: column; gap: 15px;">
-        <a href="http://pf.kakao.com/_YOUR_KAKAO_ID/chat" target="_blank" style="width: 60px; height: 60px; background: #FEE500; color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: 0.3s; text-decoration: none;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
-            <i class="fa-solid fa-comment"></i>
-        </a>
-        <a href="tel:1588-9097" style="width: 60px; height: 60px; background: var(--primary); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: 0.3s; text-decoration: none;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
-            <i class="fa-solid fa-phone-volume"></i>
-        </a>
+
+    <div class="floating-wrap">
+        <a href="http://pf.kakao.com/_YOUR_ID/chat" class="f-btn" style="background: #FEE500; color: #000;"><i class="fa-solid fa-comment"></i></a>
+        <a href="tel:1588-9097" class="f-btn" style="background: var(--primary); color: #fff;"><i class="fa-solid fa-phone"></i></a>
     </div>
 </body>
 </html>
