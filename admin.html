@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PICK CAR | HQ MASTER ADMIN v3.8</title>
+    <title>PICK CAR | HQ MASTER ADMIN v3.9</title>
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
@@ -48,7 +48,7 @@
         .data-card { background: var(--white); padding: 30px; border-radius: 20px; box-shadow: var(--shadow); margin-bottom: 30px; }
         
         .form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
-        input, select { padding: 14px; border: 1.5px solid var(--border); border-radius: 12px; outline: none; background: #fafafa; }
+        input, select { padding: 14px; border: 1.5px solid var(--border); border-radius: 12px; outline: none; background: #fafafa; width: 100%; }
         input:focus { border-color: var(--primary); background: #fff; }
 
         .btn-blue { background: var(--primary); color: #fff; border: none; padding: 14px 24px; border-radius: 10px; font-weight: 800; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px; justify-content: center; }
@@ -64,7 +64,7 @@
 <body>
 
     <div class="sidebar">
-        <div class="sidebar-header"><h2>PICK CAR</h2><p>마스터 사령부 v3.8</p></div>
+        <div class="sidebar-header"><h2>PICK CAR</h2><p>마스터 사령부 v3.9</p></div>
         <div class="nav-menu">
             <div class="nav-item active" onclick="showSection('dash', this)"><i class="fa-solid fa-chart-pie"></i> 대시보드</div>
             <div class="nav-item" onclick="showSection('cars', this)"><i class="fa-solid fa-car"></i> 차량 DB 관리</div>
@@ -80,7 +80,6 @@
         <div class="topbar"><h3 id="section-title">대시보드 실시간 현황</h3><div style="font-weight:800;">이종현 대표님 <span class="ceo-badge">SUPER ADMIN</span></div></div>
 
         <div class="content-scroll">
-            
             <div id="section-dash" class="admin-section active">
                 <div class="stat-grid">
                     <div class="stat-card"><div><p>오늘 신규 문의</p><h2 id="st-today">0건</h2></div><i class="fa-solid fa-bell" style="color:var(--danger); font-size:24px;"></i></div>
@@ -98,8 +97,8 @@
                 <div class="data-card">
                     <h3>🚗 신규 특가 차량 추가</h3>
                     <div class="form-grid" style="margin-top:20px;">
-                        <input type="text" id="c-brand" placeholder="제조사 (현대)">
-                        <input type="text" id="c-name" placeholder="모델명 (그랜저)">
+                        <input type="text" id="c-brand" placeholder="제조사 (예: 현대)">
+                        <input type="text" id="c-name" placeholder="모델명 (예: 그랜저)">
                         <input type="number" id="c-price" placeholder="월 렌탈료 (숫자만)">
                     </div>
                     <button class="btn-blue" style="width:200px;" onclick="addCar()"><i class="fa-solid fa-plus"></i> 차량 등록하기</button>
@@ -113,13 +112,14 @@
             <div id="section-sites" class="admin-section">
                 <div class="data-card">
                     <h3>🏗️ 신규 대리점(분양몰) 즉시 개통</h3>
-                    <div class="form-grid" style="margin-top:20px;">
-                        <input type="text" id="s-title" placeholder="지점명">
-                        <input type="text" id="s-slug" placeholder="도메인(slug)">
-                        <input type="text" id="s-ceo" placeholder="점주 성함">
-                        <input type="text" id="s-logo" placeholder="로고 URL">
-                        <input type="text" id="s-phone" placeholder="대표번호">
-                        <input type="text" id="s-tg" placeholder="텔레그램 ID">
+                    <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">* 지점명과 도메인 주소만 입력해도 즉시 개통 가능합니다.</p>
+                    <div class="form-grid">
+                        <input type="text" id="s-title" placeholder="지점명 (필수)">
+                        <input type="text" id="s-slug" placeholder="도메인 주소 (영문필수)">
+                        <input type="text" id="s-ceo" placeholder="점주 성함 (선택)">
+                        <input type="text" id="s-logo" placeholder="로고 URL (선택)">
+                        <input type="text" id="s-phone" placeholder="대표번호 (선택)">
+                        <input type="text" id="s-tg" placeholder="텔레그램 ID (선택)">
                     </div>
                     <button class="btn-blue" onclick="addSite()"><i class="fa-solid fa-rocket"></i> 분양몰 즉시 개통</button>
                 </div>
@@ -135,11 +135,6 @@
                     <table><thead><tr><th>상태</th><th>고객명</th><th>연락처</th><th>차종/방식</th><th>접수지점</th><th>관리</th></tr></thead><tbody id="full-contacts-body"></tbody></table>
                 </div>
             </div>
-
-            <div id="section-staff" class="admin-section"><div class="data-card"><h3>👥 본사 임직원 및 점주 계정 관리</h3><p style="margin-top:20px;">권한 설정 시스템 준비 중...</p></div></div>
-
-            <div id="section-settings" class="admin-section"><div class="data-card"><h3>⚙️ 시스템 환경 설정</h3><p style="margin-top:20px;">DB 상태: 연결됨 (Supabase)</p></div></div>
-
         </div>
     </div>
 
@@ -157,17 +152,35 @@
             fetchData();
         }
 
+        // 💡 [개정] 지점 개통 조건 완화 (지점명, 슬러그만 있으면 개통!)
         async function addSite() {
             const title = document.getElementById('s-title').value;
             const slug = document.getElementById('s-slug').value;
-            const ceo = document.getElementById('s-ceo').value;
-            const logo = document.getElementById('s-logo').value;
-            if(!title || !slug || !ceo) return alert("필수 정보를 입력하세요!");
+            const ceo = document.getElementById('s-ceo').value || "미정";
+            const logo = document.getElementById('s-logo').value || "";
+            const phone = document.getElementById('s-phone').value || "1588-9097";
+            const tg = document.getElementById('s-tg').value || "";
 
-            const { error } = await supabaseClient.from('sites').insert([{ 
-                title, slug, ceo_name: ceo, logo_url: logo, theme_color: '#0052CC' 
-            }]);
-            if(error) alert("오류!"); else { alert("개통 성공!"); location.reload(); }
+            if(!title || !slug) return alert("대표님, 지점명과 도메인 주소는 꼭 입력해 주세요!");
+
+            try {
+                const { error } = await supabaseClient.from('sites').insert([{ 
+                    title: title, 
+                    slug: slug, 
+                    ceo_name: ceo, 
+                    logo_url: logo, 
+                    phone: phone,
+                    telegram_id: tg,
+                    theme_color: '#0052CC' 
+                }]);
+
+                if(error) throw error;
+                alert(`🎊 [${title}] 지점 개통 성공!`);
+                location.reload(); 
+            } catch(e) { 
+                console.error(e);
+                alert("개통 실패! DB 자물쇠(RLS)가 풀려 있는지 확인해 주세요."); 
+            }
         }
 
         async function addCar() {
@@ -175,9 +188,14 @@
             const name = document.getElementById('c-name').value;
             const price = document.getElementById('c-price').value;
             if(!brand || !name || !price) return alert("차량 정보를 입력하세요!");
-
             const { error } = await supabaseClient.from('cars').insert([{ brand, name, price }]);
             if(error) alert("오류!"); else { alert("차량 등록 성공!"); fetchData(); }
+        }
+
+        async function deleteSite(id) {
+            if(!confirm("해당 지점을 폐쇄하시겠습니까?")) return;
+            const { error } = await supabaseClient.from('sites').delete().eq('id', id);
+            if(error) alert("삭제 실패!"); else fetchData();
         }
 
         async function deleteCar(id) {
@@ -186,19 +204,14 @@
             fetchData();
         }
 
-        async function updateInqStatus(id, status) {
-            await supabaseClient.from('contacts').update({ status }).eq('id', id);
-            fetchData();
-        }
-
         async function fetchData() {
-            const { data: sites } = await supabaseClient.from('sites').select('*');
+            const { data: sites } = await supabaseClient.from('sites').select('*').order('created_at', {ascending: false});
             const { data: cars } = await supabaseClient.from('cars').select('*');
             const { data: contacts } = await supabaseClient.from('contacts').select('*').order('created_at', {ascending: false});
 
             if(sites) {
                 document.getElementById('st-sites').innerText = sites.length + "곳";
-                document.getElementById('site-list-tbody').innerHTML = sites.map(s => `<tr><td><img src="${s.logo_url || 'https://via.placeholder.com/40'}" style="width:40px;height:40px;object-fit:contain;"></td><td><strong>${s.title}</strong></td><td>${s.slug}.pickcar.co.kr</td><td>${s.ceo_name}</td><td><button style="color:red;border:none;background:none;cursor:pointer;">삭제</button></td></tr>`).join('');
+                document.getElementById('site-list-tbody').innerHTML = sites.map(s => `<tr><td><img src="${s.logo_url || 'https://via.placeholder.com/40'}" style="width:40px;height:40px;object-fit:contain;"></td><td><strong>${s.title}</strong></td><td>${s.slug}.pickcar.co.kr</td><td>${s.ceo_name}</td><td><button onclick="deleteSite('${s.id}')" style="color:red;border:none;background:none;cursor:pointer;">삭제</button></td></tr>`).join('');
             }
             if(cars) {
                 document.getElementById('st-cars').innerText = cars.length + "대";
@@ -207,7 +220,7 @@
             if(contacts) {
                 document.getElementById('badge-inquiry').innerText = contacts.length;
                 document.getElementById('st-today').innerText = contacts.filter(c => new Date(c.created_at).toDateString() === new Date().toDateString()).length + "건";
-                const row = (c) => `<tr><td><span class="status-tag tag-new">${c.status}</span></td><td>${c.user_name}</td><td>${c.user_phone}</td><td>${c.car_item}</td><td>${c.site_name || '본사'}</td><td><button onclick="updateInqStatus('${c.id}', '상담완료')">완료처리</button></td></tr>`;
+                const row = (c) => `<tr><td><span class="status-tag tag-new">${c.status}</span></td><td>${c.user_name}</td><td>${c.user_phone}</td><td>${c.car_item}</td><td>${c.site_name || '본사'}</td><td><button onclick="alert('준비중')">관리</button></td></tr>`;
                 document.getElementById('dash-contacts-body').innerHTML = contacts.slice(0,5).map(row).join('');
                 document.getElementById('full-contacts-body').innerHTML = contacts.map(row).join('');
             }
