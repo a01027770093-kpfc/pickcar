@@ -139,35 +139,41 @@
     
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <script>
-        // 1. 이름 충돌 해결! (supabaseClient 로 변경)
-        const supabaseUrl = 'https://zewgvucgnpswdkghxdyt.supabase.co';
-        const supabaseKey = 'sb_publishable_r7KERAxppLzbhJw5mE9gOg_rvxpAXi7';
-        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+<script>
+        // 1. 대표님께서 주신 시트의 실시간 CSV 출력 주소입니다.
+        const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS-qU7U0r1_Xf-nS0T9kF3H3e2XG_9f8V7U/pub?output=csv"; 
+        // ※ 참고: 시트에서 [파일] -> [공유] -> [웹에 게시]를 완료해야 데이터가 들어옵니다.
 
-        let allCars = []; 
+        let allCars = [];
         let currentFilter = { brand: 'all', minPrice: 0, maxPrice: 99999999 };
 
-        // 2. 픽카 DB에서 실시간으로 차량 데이터 가져오기
         async function fetchCars() {
             try {
-                // supabaseClient 로 요청!
-                const { data, error } = await supabaseClient.from('cars').select('*');
+                const response = await fetch(sheetUrl);
+                const data = await response.text();
                 
-                if (error) throw error; 
+                // CSV 파싱 (쉼표 기준 나누기)
+                const rows = data.split('\n').slice(1); 
+                allCars = rows.map(row => {
+                    const cols = row.split(',');
+                    return {
+                        brand: cols[0]?.trim(), 
+                        name: cols[1]?.trim(),  
+                        cond: cols[2]?.trim(),  
+                        // 숫자에서 콤마(,)나 '원' 글자 제거 후 순수 숫자만 추출
+                        price: parseInt(cols[3]?.replace(/[^0-9]/g, '')) || 0, 
+                        img: cols[4]?.trim()    
+                    };
+                }).filter(car => car.name); 
 
-                allCars = data; 
-                allCars.sort((a,b) => a.price - b.price);
-                
-                applyFilters(); 
+                applyFilters();
 
-            } catch (e) { 
-                console.error("데이터 로드 실패:", e); 
-                document.getElementById('car-list').innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding: 50px; color: #999;">데이터를 불러올 수 없습니다. 관리자에게 문의하세요.</div>';
+            } catch (e) {
+                console.error("구글 시트 로드 실패:", e);
+                document.getElementById('car-list').innerHTML = '<p style="grid-column:1/-1; text-align:center; padding: 50px;">데이터를 불러올 수 없습니다. 시트의 [웹에 게시] 설정을 확인해주세요.</p>';
             }
         }
 
-        // 3. 화면에 차량 카드 그리기
         function applyFilters() {
             const filteredCars = allCars.filter(car => {
                 const passBrand = (currentFilter.brand === 'all' || car.brand === currentFilter.brand);
@@ -185,7 +191,7 @@
             list.innerHTML = filteredCars.map(car => `
                 <div class="car-card">
                     <div class="car-img-wrap">
-                        <img src="${car.img}" class="car-img" alt="${car.name}">
+                        <img src="${car.img}" class="car-img" onerror="this.src='https://via.placeholder.com/400x250?text=이미지준비중'">
                     </div>
                     <div class="car-info">
                         <div class="car-brand">${car.brand}</div>
@@ -198,7 +204,7 @@
             `).join('');
         }
 
-        // 4. 브랜드/가격 버튼 눌렀을 때 작동하는 기능 (이 부분이 잘려있었습니다!)
+        // 필터 버튼 이벤트
         document.querySelectorAll('.brand-filter').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 document.querySelectorAll('.brand-filter').forEach(b => b.classList.remove('active'));
@@ -218,7 +224,6 @@
             });
         });
 
-        // 5. 엔진 시동 켜기! (이게 있어야 처음에 데이터를 불러옵니다)
         fetchCars();
     </script>
   
