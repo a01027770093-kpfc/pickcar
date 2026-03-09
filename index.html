@@ -5,226 +5,234 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <title>PICK CAR | 대한민국 1등 신차 장기렌트·리스 비교견적</title>
+    <title>PICK CAR | 프리미엄 신차 컨설팅 전문 기업</title>
     <meta name="description" content="전 금융사 실시간 최저가 비교, 픽카(PICK CAR). 무서류 심사, 빠른 출고, 정직한 견적을 약속드립니다.">
-    <meta name="author" content="Lee Jong-hyun">
-    <link rel="canonical" href="https://pickcar.co.kr">
+    <meta property="og:title" content="PICK CAR - 당신의 차를 픽하다">
+    <meta property="og:image" content="https://via.placeholder.com/1200x630/0052CC/FFFFFF?text=PICK+CAR">
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
 
     <style>
-        /* [1. CSS Variables - 브랜드 컬러 시스템] */
+        /* [디자인 시스템] */
         :root {
-            --main-blue: #0052CC;      /* 신뢰의 삼성/현대급 블루 */
-            --dark-blue: #0747A6;      /* 호버 및 강조용 */
-            --light-blue: #E7F1FF;     /* 배경 및 포인트용 */
+            --main-blue: #0052CC;
+            --dark-blue: #0747A6;
+            --light-blue: #E7F1FF;
             --white: #FFFFFF;
             --gray-50: #F8F9FA;
             --gray-100: #E9ECEF;
-            --gray-200: #DEE2E6;
-            --gray-700: #495057;
             --gray-900: #212529;
-            --danger: #E63946;         /* 가격 강조용 */
-            --shadow-sm: 0 2px 8px rgba(0,0,0,0.05);
-            --shadow-md: 0 12px 30px rgba(0, 82, 204, 0.1);
-            --transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            --red: #E63946;
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* [2. Reset & Base] */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-        body { 
-            font-family: 'Pretendard', sans-serif; 
-            background-color: var(--white); 
-            color: var(--gray-900);
-            line-height: 1.7;
-            overflow-x: hidden;
-        }
+        body { font-family: 'Pretendard', sans-serif; background: var(--white); color: var(--gray-900); line-height: 1.6; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 
-        /* [3. Header - 디테일한 투명도 및 스크롤 효과] */
-        .pc-header {
-            position: fixed; top: 0; width: 100%; height: 90px;
-            display: flex; align-items: center; z-index: 1000;
-            transition: var(--transition); background: transparent;
-        }
-        .pc-header.scrolled {
-            height: 75px; background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(15px); border-bottom: 1px solid var(--gray-100);
-            box-shadow: var(--shadow-sm);
-        }
-        .header-inner {
-            width: 100%; max-width: 1400px; margin: 0 auto;
-            display: flex; justify-content: space-between; align-items: center; padding: 0 40px;
-        }
-        .logo { font-size: 28px; font-weight: 900; color: var(--main-blue); letter-spacing: -1.5px; }
-        .gnb { display: flex; gap: 50px; }
-        .gnb a { 
-            font-size: 17px; font-weight: 600; color: var(--gray-700); 
-            position: relative; padding: 10px 0;
-        }
-        .gnb a::after {
-            content: ''; position: absolute; bottom: 0; left: 50%; width: 0; height: 3px;
-            background: var(--main-blue); transition: var(--transition); transform: translateX(-50%);
-        }
-        .gnb a:hover::after, .gnb a.active::after { width: 100%; }
-        .gnb a:hover { color: var(--main-blue); }
+        /* [Header] */
+        .pc-header { position: fixed; top: 0; width: 100%; height: 80px; display: flex; align-items: center; z-index: 1000; transition: var(--transition); background: #fff; border-bottom: 1px solid var(--gray-100); }
+        .pc-header.scrolled { height: 70px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .header-inner { width: 100%; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 26px; font-weight: 900; color: var(--main-blue); text-decoration: none; }
+        .gnb a { margin-left: 30px; text-decoration: none; color: #444; font-weight: 600; cursor: pointer; }
+        .gnb a:hover, .gnb a.active { color: var(--main-blue); }
 
-        .header-util { display: flex; align-items: center; gap: 20px; }
-        .btn-consult {
-            background: var(--main-blue); color: #fff; padding: 12px 28px;
-            border-radius: 50px; font-weight: 700; transition: var(--transition);
-        }
-        .btn-consult:hover { background: var(--dark-blue); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+        /* [Hero Section] */
+        .hero { padding: 160px 0 100px; background: linear-gradient(to bottom, #fff, var(--light-blue)); text-align: center; }
+        .hero h1 { font-size: 52px; font-weight: 900; margin-bottom: 20px; letter-spacing: -2px; }
+        .hero h1 span { color: var(--main-blue); }
+        .hero p { font-size: 20px; color: #666; margin-bottom: 40px; }
 
-        /* [4. Hero Slider - 압도적인 첫인상] */
-        .hero-swiper { width: 100%; height: 100vh; position: relative; }
-        .slide-item { position: relative; overflow: hidden; }
-        .slide-bg {
-            width: 100%; height: 100%; object-fit: cover;
-            transform: scale(1.1); transition: transform 8s ease;
-        }
-        .swiper-slide-active .slide-bg { transform: scale(1); }
-        .slide-overlay {
-            position: absolute; inset: 0;
-            background: linear-gradient(to right, rgba(255,255,255,0.9) 20%, transparent 80%);
-            display: flex; align-items: center; padding: 0 10%;
-        }
-        .slide-text h2 { font-size: 70px; font-weight: 900; line-height: 1.1; margin-bottom: 30px; letter-spacing: -4px; }
-        .slide-text h2 span { color: var(--main-blue); }
-        .slide-text p { font-size: 22px; color: var(--gray-700); margin-bottom: 45px; }
-
-        /* [5. Car Filter Section - 상세 필터링] */
-        .filter-section { padding: 120px 0; background: var(--gray-50); }
-        .section-title { text-align: center; margin-bottom: 80px; }
-        .section-title h3 { font-size: 42px; font-weight: 800; margin-bottom: 15px; }
-        .section-title p { color: var(--gray-400); font-size: 18px; }
-
-        .filter-wrap {
-            display: flex; justify-content: center; gap: 15px; margin-bottom: 50px; flex-wrap: wrap;
-        }
-        .filter-btn {
-            padding: 12px 30px; border-radius: 50px; background: #fff; border: 1px solid var(--gray-200);
-            font-weight: 600; cursor: pointer; transition: var(--transition);
-        }
+        /* [Filter & Grid] */
+        .filter-wrap { display: flex; justify-content: center; gap: 10px; margin-bottom: 50px; flex-wrap: wrap; }
+        .filter-btn { padding: 10px 25px; border-radius: 50px; border: 1px solid var(--gray-200); background: #fff; cursor: pointer; font-weight: 600; transition: 0.3s; }
         .filter-btn.active { background: var(--main-blue); color: #fff; border-color: var(--main-blue); }
 
-        /* [6. Car Grid - 카드 디테일] */
-        .car-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 40px; max-width: 1400px; margin: 0 auto; padding: 0 40px;
-        }
-        .car-card {
-            background: var(--white); border-radius: 24px; overflow: hidden;
-            border: 1px solid var(--gray-100); transition: var(--transition);
-        }
-        .car-card:hover { transform: translateY(-15px); box-shadow: var(--shadow-md); border-color: var(--main-blue); }
-        .car-img-wrap { width: 100%; height: 220px; overflow: hidden; background: #f1f1f1; position: relative; }
-        .car-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: var(--transition); }
-        .car-card:hover .car-img-wrap img { transform: scale(1.1); }
-        .badge-hot { 
-            position: absolute; top: 20px; left: 20px; background: var(--danger); 
-            color: #fff; padding: 5px 15px; border-radius: 50px; font-size: 12px; font-weight: 700;
-        }
+        .car-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
+        .car-card { background: #fff; border-radius: 20px; border: 1px solid var(--gray-100); overflow: hidden; transition: var(--transition); }
+        .car-card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); border-color: var(--main-blue); }
+        .car-img { width: 100%; height: 200px; object-fit: contain; background: #f9f9f9; padding: 20px; }
+        .car-info { padding: 25px; }
+        .car-brand { color: var(--main-blue); font-size: 13px; font-weight: 800; }
+        .car-price { font-size: 24px; font-weight: 900; color: var(--red); margin: 10px 0; }
 
-        .car-info { padding: 30px; }
-        .car-brand { font-size: 14px; font-weight: 800; color: var(--main-blue); text-transform: uppercase; }
-        .car-name { font-size: 24px; font-weight: 700; margin: 8px 0 20px; }
-        .car-spec { 
-            display: flex; justify-content: space-between; border-top: 1px solid var(--gray-100);
-            padding-top: 20px; margin-bottom: 25px;
-        }
-        .spec-item { text-align: center; }
-        .spec-label { font-size: 11px; color: var(--gray-400); display: block; }
-        .spec-value { font-size: 14px; font-weight: 600; }
+        /* [Contact Form] */
+        .contact-section { padding: 100px 0; background: var(--gray-50); }
+        .contact-box { max-width: 600px; margin: 0 auto; background: #fff; padding: 40px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; margin-bottom: 8px; font-weight: 600; }
+        .input-group input, .input-group select, .input-group textarea { width: 100%; padding: 15px; border: 1px solid var(--gray-200); border-radius: 12px; font-size: 16px; }
+        .submit-btn { width: 100%; padding: 18px; background: var(--main-blue); color: #fff; border: none; border-radius: 12px; font-size: 18px; font-weight: 700; cursor: pointer; transition: 0.3s; }
+        .submit-btn:hover { background: var(--dark-blue); }
 
-        .car-price-box {
-            background: var(--light-blue); border-radius: 15px; padding: 20px; text-align: center;
-        }
-        .price-label { font-size: 13px; color: var(--main-blue); font-weight: 700; }
-        .price-value { font-size: 28px; font-weight: 900; color: var(--gray-900); }
-        .price-value span { font-size: 16px; font-weight: 500; }
+        footer { background: #1a1a1a; color: #888; padding: 60px 0; text-align: center; }
 
-        /* [7. Footer 디테일] */
-        .footer { background: #1a1a1a; color: #fff; padding: 100px 0 50px; }
-        .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 60px; margin-bottom: 60px; }
-        .footer-logo { font-size: 30px; font-weight: 900; color: var(--main-blue); margin-bottom: 20px; display: block; }
-        .footer-info p { color: #999; font-size: 14px; margin-bottom: 10px; }
-        .footer-title { font-size: 18px; font-weight: 700; margin-bottom: 25px; }
-        .footer-links li { margin-bottom: 15px; }
-        .footer-links a { color: #999; font-size: 15px; }
-        .footer-links a:hover { color: #fff; }
-
-        /* [Animation] */
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        /* 섹션 제어 */
+        section { display: none; }
+        section.active { display: block; }
     </style>
 </head>
 <body>
 
     <header class="pc-header">
-        <div class="header-inner">
-            <a href="#" class="logo">PICK CAR</a>
+        <div class="container header-inner">
+            <a href="#" class="logo" onclick="showSection('home')">PICK CAR</a>
             <nav class="gnb">
-                <a href="#hero" class="active">HOME</a>
-                <a href="#cars">차량안내</a>
-                <a href="#process">이용절차</a>
-                <a href="#review">출고후기</a>
-                <a href="#contact">상담신청</a>
+                <a onclick="showSection('home')" class="nav-item active" id="nav-home">홈</a>
+                <a onclick="showSection('cars')" class="nav-item" id="nav-cars">차량견적</a>
+                <a onclick="showSection('contact')" class="nav-item" id="nav-contact">상담신청</a>
             </nav>
-            <div class="header-util">
-                <a href="tel:1588-9097" style="font-weight: 700;"><i class="fa-solid fa-phone"></i> 1588-9097</a>
-                <a href="#contact" class="btn-consult">빠른 견적신청</a>
-            </div>
         </div>
     </header>
 
-    <section id="hero" class="hero-swiper">
-        <div class="slide-item">
-            <div class="slide-overlay">
-                <div class="slide-text" data-aos="fade-right">
-                    <h2>신차 구매의<br><span>가장 현명한 선택</span></h2>
-                    <p>전 금융사 실시간 최저가 비교 시스템으로<br>최적의 견적을 10분 만에 제안해 드립니다.</p>
-                    <a href="#contact" class="btn-consult" style="padding: 20px 50px; font-size: 20px;">지금 바로 견적받기</a>
-                </div>
+    <section id="home" class="active">
+        <div class="hero">
+            <div class="container" data-aos="fade-up">
+                <h1>정직한 <span>3% 수수료</span><br>픽카가 약속합니다.</h1>
+                <p>전 금융사 실시간 최저가 비교부터 즉시 출고까지</p>
+                <button class="submit-btn" style="width:auto; padding: 15px 40px;" onclick="showSection('cars')">실시간 견적 보러가기</button>
             </div>
         </div>
     </section>
 
-    <section id="cars" class="filter-section">
+    <section id="cars" style="padding: 100px 0;">
         <div class="container">
-            <div class="section-title" data-aos="fade-up">
-                <h3>PICK CAR 추천 매물</h3>
-                <p>현재 가장 인기 있는 즉시 출고 가능 차량들입니다.</p>
+            <div class="filter-wrap">
+                <button class="filter-btn active" onclick="filterBrand('전체', this)">전체보기</button>
+                <button class="filter-btn" onclick="filterBrand('현대', this)">현대</button>
+                <button class="filter-btn" onclick="filterBrand('기아', this)">기아</button>
+                <button class="filter-btn" onclick="filterBrand('제네시스', this)">제네시스</button>
             </div>
-
-            <div class="filter-wrap" data-aos="fade-up">
-                <button class="filter-btn active" onclick="filterBrand('전체')">전체</button>
-                <button class="filter-btn" onclick="filterBrand('현대')">현대</button>
-                <button class="filter-btn" onclick="filterBrand('기아')">기아</button>
-                <button class="filter-btn" onclick="filterBrand('제네시스')">제네시스</button>
-                <button class="filter-btn" onclick="filterBrand('수입차')">수입차</button>
-            </div>
-
             <div id="car-list" class="car-grid">
-                </div>
+                <p style="text-align:center; grid-column: 1/-1;">데이터를 불러오는 중입니다...</p>
+            </div>
         </div>
     </section>
+
+    <section id="contact" class="contact-section">
+        <div class="container">
+            <div class="contact-box" data-aos="zoom-in">
+                <h2 style="text-align:center; margin-bottom:30px;">실시간 견적 문의</h2>
+                <form id="contactForm" action="https://formspree.io/f/meelygdy" method="POST">
+                    <div class="input-group">
+                        <label>성함</label>
+                        <input type="text" name="name" placeholder="홍길동" required>
+                    </div>
+                    <div class="input-group">
+                        <label>연락처</label>
+                        <input type="text" name="phone" placeholder="010-1234-5678" required>
+                    </div>
+                    <div class="input-group">
+                        <label>희망 차종</label>
+                        <input type="text" name="car_name" placeholder="그랜저 하이브리드 등">
+                    </div>
+                    <div class="input-group">
+                        <label>문의내용</label>
+                        <textarea name="message" rows="4" placeholder="상세 내용을 적어주세요"></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">견적 요청 전송하기</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p style="color:#fff; font-weight:800; margin-bottom:10px;">PICK CAR</p>
+            <p>대표자: 이종현 | 주소: 강원도 원주시 | 텔레그램 실시간 상담 지원</p>
+            <p style="margin-top:20px; opacity:0.5;">© 2026 PICKCAR. All rights reserved.</p>
+        </div>
+    </footer>
 
     <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
     <script>
-        AOS.init({ duration: 1000 });
-        
-        // 스크롤 시 헤더 변화
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 100) document.querySelector('.pc-header').classList.add('scrolled');
-            else document.querySelector('.pc-header').classList.remove('scrolled');
+        AOS.init();
+
+        // [설정] 텔레그램 정보 입력
+        const TG_CONFIG = {
+            TOKEN: '여기에_토큰_입력',
+            CHAT_ID: '여기에_ID_입력'
+        };
+
+        // [데이터 로드] 구글 시트 연동
+        const SHEET_ID = '1id0jWui5_lKnnk0j_fAZMUnNFjv92xUUNVIHZGXr1vE';
+        const DATA_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
+
+        let carData = [];
+
+        async function fetchCars() {
+            try {
+                const res = await fetch(DATA_URL);
+                const text = await res.text();
+                const json = JSON.parse(text.substr(47).slice(0, -2));
+                carData = json.table.rows.map(row => ({
+                    brand: row.c[0]?.v || "",
+                    name: row.c[1]?.v || "",
+                    cond: row.c[2]?.v || "",
+                    price: row.c[3]?.v || 0,
+                    img: row.c[4]?.v || "https://via.placeholder.com/400x250"
+                }));
+                renderCars(carData);
+            } catch (e) { console.error("데이터 로드 실패", e); }
+        }
+
+        function renderCars(data) {
+            const list = document.getElementById('car-list');
+            list.innerHTML = data.map(car => `
+                <div class="car-card" data-aos="fade-up">
+                    <img src="${car.img}" class="car-img">
+                    <div class="car-info">
+                        <span class="car-brand">${car.brand}</span>
+                        <h3>${car.name}</h3>
+                        <p style="color:#888; font-size:13px;">${car.cond}</p>
+                        <p class="car-price">월 ${car.price.toLocaleString()}원~</p>
+                        <button class="submit-btn" style="padding:10px; font-size:14px;" onclick="showSection('contact')">문의하기</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterBrand(brand, btn) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const filtered = brand === '전체' ? carData : carData.filter(c => c.brand === brand);
+            renderCars(filtered);
+        }
+
+        function showSection(id) {
+            document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(a => a.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.getElementById('nav-'+id).classList.add('active');
+            window.scrollTo(0,0);
+        }
+
+        // [텔레그램 전송 로직]
+        document.getElementById('contactForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            // 1. 폼스프리 전송
+            await fetch(form.action, { method: 'POST', body: formData, headers: {'Accept': 'application/json'} });
+
+            // 2. 텔레그램 전송
+            const msg = `🚗 [PICK CAR 문의]\n성함: ${data.name}\n연락처: ${data.phone}\n차종: ${data.car_name}\n내용: ${data.message}`;
+            await fetch(`https://api.telegram.org/bot${TG_CONFIG.TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ chat_id: TG_CONFIG.CHAT_ID, text: msg })
+            });
+
+            alert("접수되었습니다!");
+            form.reset();
         });
+
+        fetchCars();
     </script>
 </body>
 </html>
