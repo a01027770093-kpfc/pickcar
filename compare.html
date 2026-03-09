@@ -1,109 +1,253 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>PICKCAR | 구매방식 비교</title>
-  <link rel="stylesheet" href="assets/css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>할부/렌트/리스 비교 | PICK CAR</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link rel="stylesheet" href="css/style.css"> <style>
+        /* [비교 페이지 전용 스타일] */
+        .compare-hero {
+            padding: 160px 0 80px;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            color: #fff; text-align: center;
+        }
+        .compare-hero h1 { font-size: 48px; font-weight: 900; margin-bottom: 20px; letter-spacing: -1px; }
+        .compare-hero p { font-size: 20px; opacity: 0.9; }
+
+        /* 비교 요약 섹션 */
+        .summary-section { padding: 80px 0; background: var(--bg-gray); }
+        .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 40px; }
+        .summary-card {
+            background: #fff; padding: 40px 30px; border-radius: 24px;
+            box-shadow: var(--shadow); border-top: 6px solid var(--border);
+            text-align: center; transition: 0.3s;
+        }
+        .summary-card:hover { transform: translateY(-10px); }
+        .summary-card.rent { border-top-color: #03C75A; } /* 장기렌트 강조색 */
+        .summary-card.lease { border-top-color: var(--primary); } /* 리스 강조색 */
+        .summary-card.installment { border-top-color: #666; } /* 할부 강조색 */
+        
+        .card-icon { font-size: 40px; margin-bottom: 20px; }
+        .summary-card.rent .card-icon { color: #03C75A; }
+        .summary-card.lease .card-icon { color: var(--primary); }
+        .summary-card.installment .card-icon { color: #666; }
+
+        .summary-card h3 { font-size: 26px; font-weight: 900; margin-bottom: 15px; }
+        .summary-card p { font-size: 16px; color: var(--text-sub); line-height: 1.6; margin-bottom: 20px; }
+        .tag-wrap { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+        .tag { padding: 6px 12px; border-radius: 50px; font-size: 13px; font-weight: 700; background: var(--bg-gray); color: var(--text-main); }
+
+        /* 상세 비교표 섹션 (PC용) */
+        .table-section { padding: 100px 0; background: #fff; }
+        .compare-table {
+            width: 100%; border-collapse: collapse; margin-top: 40px;
+            background: #fff; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.03); border: 1px solid var(--border);
+        }
+        .compare-table th, .compare-table td { padding: 25px 20px; text-align: center; border-bottom: 1px solid var(--border); }
+        .compare-table th { background: var(--bg-gray); font-size: 18px; font-weight: 800; color: var(--text-main); }
+        .compare-table tbody tr:hover { background: var(--primary-light); }
+        .compare-table td { font-size: 16px; font-weight: 600; color: var(--text-sub); }
+        .compare-table td:first-child { font-weight: 800; color: var(--text-main); background: #fafafa; }
+        
+        /* 픽카 추천 마크 */
+        .best-badge { background: var(--accent); color: #fff; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 800; margin-left: 10px; vertical-align: middle; }
+
+        /* 프로세스 섹션 */
+        .process-section { padding: 100px 0; background: var(--bg-gray); text-align: center; }
+        .process-flex { display: flex; justify-content: center; align-items: center; gap: 20px; margin-top: 60px; flex-wrap: wrap; }
+        .process-step { width: 180px; }
+        .step-circle {
+            width: 100px; height: 100px; border-radius: 50%; background: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 30px; color: var(--primary); margin: 0 auto 20px;
+            box-shadow: var(--shadow); position: relative; font-weight: 900;
+        }
+        .step-circle::after {
+            content: ''; position: absolute; top: -5px; left: -5px; right: -5px; bottom: -5px;
+            border: 2px dashed var(--primary-light); border-radius: 50%;
+        }
+        .process-step h4 { font-size: 18px; font-weight: 800; margin-bottom: 10px; }
+        .process-step p { font-size: 14px; color: var(--text-sub); }
+        .process-arrow { font-size: 24px; color: var(--border); }
+
+        /* 모바일 대응 */
+        @media (max-width: 968px) {
+            .summary-grid { grid-template-columns: 1fr; }
+            .compare-table { display: block; overflow-x: auto; white-space: nowrap; } /* 표 스크롤 */
+            .process-flex { flex-direction: column; gap: 40px; }
+            .process-arrow { transform: rotate(90deg); }
+        }
+    </style>
 </head>
 <body>
-<header class="header">
-  <div class="wrap header__inner">
-    <a class="brand" href="index.html"><span class="brand__logo">PX</span><span class="brand__text"><b>PICKCAR</b><small>신차 종합 에이전시</small></span></a>
-    <nav class="nav">
-      <a href="index.html">홈</a>
-      <a href="cars.html">차량견적</a>
-      <a href="compare.html" class="is-active">구매방식 비교</a>
-      <a href="contact.html">즉시상담</a>
-      <a href="about.html">픽카소개</a>
-    </nav>
-    <a class="btn btn--primary" href="contact.html">빠른 상담</a>
-  </div>
-</header>
 
-<section class="page-title">
-  <div class="wrap">
-    <h1>할부 · 렌트 · 리스 비교</h1>
-    <p class="muted">처음에 표로 정리하고, 아래에서 각 방식 장단점을 3섹션으로 설명합니다.</p>
-  </div>
-</section>
+    <header>
+        <div class="container header-inner">
+            <a href="index.html" class="logo">PICK CAR</a>
+            <nav class="nav">
+                <a href="about.html">픽카 소개</a>
+                <a href="compare.html" class="active">할부·렌트·리스 비교</a>
+                <a href="cars.html">차량견적</a>
+                <a href="contact.html">상담/창업문의</a>
+            </nav>
+        </div>
+    </header>
 
-<section class="section">
-  <div class="wrap">
-    <div class="panel">
-      <b>한눈에 비교표</b>
-      <div style="overflow:auto;margin-top:12px">
-        <table style="width:100%;border-collapse:collapse;min-width:820px">
-          <thead>
-            <tr>
-              <th style="text-align:left;padding:10px;border-bottom:1px solid var(--line)">구분</th>
-              <th style="text-align:left;padding:10px;border-bottom:1px solid var(--line)">할부</th>
-              <th style="text-align:left;padding:10px;border-bottom:1px solid var(--line)">리스</th>
-              <th style="text-align:left;padding:10px;border-bottom:1px solid var(--line)">렌트</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td style="padding:10px;border-bottom:1px solid var(--line)"><b>소유</b></td>
-              <td style="padding:10px;border-bottom:1px solid var(--line)">내 명의</td>
-              <td style="padding:10px;border-bottom:1px solid var(--line)">금융사 명의(인수 선택)</td>
-              <td style="padding:10px;border-bottom:1px solid var(--line)">렌트사 명의(인수/반납 선택)</td>
-            </tr>
-            <tr>
-              <td style="padding:10px;border-bottom:1px solid var(--line)"><b>보험/세금</b></td>
-              <td style="padding:10px;border-bottom:1px solid var(--line)">별도</td>
-              <td style="padding:10px;border-bottom:1px solid var(--line)">별도</td>
-              <td style="padding:10px;border-bottom:1px solid var(--line)">포함 구조가 많음</td>
-            </tr>
-            <tr>
-              <td style="padding:10px;border-bottom:1px solid var(--line)"><b>사업자</b></td>
-              <td style="padding:10px;border-bottom:1px solid var(--line)">일반 구매 중심</td>
-              <td style="padding:10px;border-bottom:1px solid var(--line)">비용처리/운용 강점</td>
-              <td style="padding:10px;border-bottom:1px solid var(--line)">관리 편의/예상 월비용 파악 쉬움</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <p class="note">※ 실제 조건은 차종/연식/심사/프로모션에 따라 달라집니다.</p>
+    <main>
+        <section class="compare-hero">
+            <div class="container" data-aos="fade-up">
+                <h1>어떤 구매 방식이<br>대표님께 유리할까요?</h1>
+                <p>픽카가 할부, 렌트, 리스의 장단점을 명확하게 비교해 드립니다.</p>
+            </div>
+        </section>
+
+        <section class="summary-section">
+            <div class="container">
+                <div class="section-title" data-aos="fade-up">핵심 요약</div>
+                
+                <div class="summary-grid">
+                    <div class="summary-card rent" data-aos="fade-up" data-aos-delay="0">
+                        <i class="fa-solid fa-car-side card-icon"></i>
+                        <h3>신차 장기렌트</h3>
+                        <p>초기비용 0원, 보험료/세금 모두 포함!<br>사고가 나도 할증 없는 가장 편리한 방식</p>
+                        <div class="tag-wrap">
+                            <span class="tag">#사업자비용처리</span>
+                            <span class="tag">#초보운전추천</span>
+                            <span class="tag">#하/허/호 번호판</span>
+                        </div>
+                    </div>
+
+                    <div class="summary-card lease" data-aos="fade-up" data-aos-delay="100">
+                        <i class="fa-solid fa-key card-icon"></i>
+                        <h3>자동차 리스</h3>
+                        <p>일반 번호판 사용으로 품위 유지!<br>내 보험 경력을 그대로 이어가는 방식</p>
+                        <div class="tag-wrap">
+                            <span class="tag">#일반번호판</span>
+                            <span class="tag">#무사고경력유지</span>
+                            <span class="tag">#수입차추천</span>
+                        </div>
+                    </div>
+
+                    <div class="summary-card installment" data-aos="fade-up" data-aos-delay="200">
+                        <i class="fa-solid fa-money-check-dollar card-icon"></i>
+                        <h3>신차 할부</h3>
+                        <p>차량을 온전한 내 자산으로!<br>장기간 운행할 계획이신 분들께 추천</p>
+                        <div class="tag-wrap">
+                            <span class="tag">#내명의자산</span>
+                            <span class="tag">#장기운행</span>
+                            <span class="tag">#초기비용필요</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="table-section">
+            <div class="container">
+                <div class="section-title" data-aos="fade-up">한눈에 보는 <span>상세 비교표</span></div>
+                
+                <table class="compare-table" data-aos="fade-up">
+                    <thead>
+                        <tr>
+                            <th style="width: 20%;">비교 항목</th>
+                            <th style="width: 26%;">장기렌트 <span class="best-badge">PICK</span></th>
+                            <th style="width: 26%;">자동차 리스</th>
+                            <th style="width: 28%;">신차 할부</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>명의</td>
+                            <td style="color:var(--primary); font-weight:800;">렌트사 명의 (익명성 보장)</td>
+                            <td>리스사 명의 (일반 번호판)</td>
+                            <td>고객 본인 명의</td>
+                        </tr>
+                        <tr>
+                            <td>초기 비용</td>
+                            <td style="color:var(--primary); font-weight:800;">0원 진행 가능 (취등록세 포함)</td>
+                            <td>0원 진행 가능 (취등록세 포함)</td>
+                            <td>취등록세, 공채 등 별도 부담</td>
+                        </tr>
+                        <tr>
+                            <td>자동차 보험</td>
+                            <td style="color:var(--primary); font-weight:800;">렌트료에 포함 (사고 시 할증 無)</td>
+                            <td>개인 보험 가입 (경력 유지)</td>
+                            <td>개인 보험 가입</td>
+                        </tr>
+                        <tr>
+                            <td>세금 / 부채</td>
+                            <td style="color:var(--primary); font-weight:800;">재산/부채 안 잡힘 (건보료 인상 無)</td>
+                            <td>금융리스 외 안 잡힘</td>
+                            <td>개인 자산 및 대출로 잡힘</td>
+                        </tr>
+                        <tr>
+                            <td>사업자 혜택</td>
+                            <td style="color:var(--primary); font-weight:800;">월 렌트료 100% 비용 처리</td>
+                            <td style="color:var(--primary); font-weight:800;">월 리스료 100% 비용 처리</td>
+                            <td>감가상각비만 처리 가능</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div style="text-align: center; margin-top: 40px;">
+                    <a href="cars.html" class="btn-main" style="padding: 20px 50px; font-size: 20px;">내 조건에 맞는 차량 견적보기</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="process-section">
+            <div class="container">
+                <div class="section-title" data-aos="fade-up">픽카 <span>진행 절차</span></div>
+                <div class="process-flex" data-aos="fade-up">
+                    <div class="process-step">
+                        <div class="step-circle">01</div>
+                        <h4>상담 신청</h4>
+                        <p>원하시는 차종과<br>조건을 남겨주세요.</p>
+                    </div>
+                    <i class="fa-solid fa-chevron-right process-arrow"></i>
+                    <div class="process-step">
+                        <div class="step-circle">02</div>
+                        <h4>최저가 매칭</h4>
+                        <p>24개 금융사<br>비교 견적 산출</p>
+                    </div>
+                    <i class="fa-solid fa-chevron-right process-arrow"></i>
+                    <div class="process-step">
+                        <div class="step-circle">03</div>
+                        <h4>심사 및 계약</h4>
+                        <p>무서류 간편 심사 및<br>전자 계약 진행</p>
+                    </div>
+                    <i class="fa-solid fa-chevron-right process-arrow"></i>
+                    <div class="process-step">
+                        <div class="step-circle">04</div>
+                        <h4>차량 인도</h4>
+                        <p>안전하게 집 앞까지<br>신차 배송 완료</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <h2 style="color: var(--primary); font-weight: 900; margin-bottom: 10px;">PICK CAR</h2>
+            <p>강원도 원주시 | 신차 종합 에이전시 픽카 | 대표: 이종현</p>
+            <p style="margin-top: 20px; font-size: 14px; opacity: 0.5;">© 2026 PICK CAR Franchise. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <div class="floating-btns">
+        <a href="http://pf.kakao.com/_YOUR_KAKAO_ID/chat" target="_blank" class="float-btn kakao"><i class="fa-solid fa-comment"></i></a>
+        <a href="tel:1588-9097" class="float-btn call"><i class="fa-solid fa-phone-volume"></i></a>
     </div>
 
-    <div class="grid" style="grid-template-columns:repeat(3,1fr);margin-top:14px">
-      <div class="panel">
-        <b>1. 할부</b>
-        <p class="muted">차를 “사는 방식”.</p>
-        <ul>
-          <li>내 명의 소유</li>
-          <li>세금/보험 별도</li>
-          <li>구조가 단순</li>
-        </ul>
-      </div>
-      <div class="panel">
-        <b>2. 렌트</b>
-        <p class="muted">차를 “이용하는 방식”.</p>
-        <ul>
-          <li>보험/세금 포함 구조가 많음</li>
-          <li>초기비용 낮추기 쉬움</li>
-          <li>인수/반납 선택</li>
-        </ul>
-      </div>
-      <div class="panel">
-        <b>3. 리스</b>
-        <p class="muted">차를 “운용하는 방식”.</p>
-        <ul>
-          <li>사업자 비용처리/운용 강점</li>
-          <li>조건에 따라 인수/반납</li>
-          <li>보험은 별도인 경우 많음</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="panel" style="margin-top:14px">
-      <b>24개 금융사 비교 (이미지 영역)</b>
-      <p class="note">여기에 대표님 이미지 넣기: <code>assets/finance/finance-24.png</code></p>
-    </div>
-  </div>
-</section>
-
-<footer class="footer"><div class="wrap">© PICKCAR</div></footer>
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script src="js/common.js"></script>
+    <script>
+        AOS.init({ duration: 800, once: true });
+    </script>
 </body>
 </html>
