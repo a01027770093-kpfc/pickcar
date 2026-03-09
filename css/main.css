@@ -1,0 +1,46 @@
+/* 픽카(PICK CAR) 메인 디자인 시스템 */
+:root {
+    --primary-blue: #0052CC;    /* 신뢰의 블루 */
+    --hover-blue: #003D99;
+    --bg-white: #FFFFFF;       /* 깨끗한 배경 */
+    --section-bg: #F8FAFF;     /* 연한 블루 섹션 배경 */
+    --text-dark: #1D1D1F;      /* 애플 스타일 진회색 */
+    --text-gray: #6B778C;      /* 부드러운 설명 텍스트 */
+    --border-light: #E1E4E8;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Pretendard', sans-serif; background: var(--bg-white); color: var(--text-dark); overflow-x: hidden; }
+
+/* 공통 버튼 스타일 */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 14px 28px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: 0.3s;
+    cursor: pointer;
+}
+.btn-blue { background: var(--primary-blue); color: #fff; }
+.btn-blue:hover { background: var(--hover-blue); transform: translateY(-2px); }
+
+/* 컨테이너 */
+.container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+/* 숫자 카운팅 섹션 스타일 */
+.stat-card {
+    background: #fff;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 82, 204, 0.08);
+    text-align: center;
+    border: 1px solid var(--border-light);
+}
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--primary-blue);
+    margin-bottom: 8px;
+}
