@@ -135,6 +135,92 @@
   });
 
   render();
-</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script>
+        // 1. 대표님의 픽카 전용 DB 서버 연결 열쇠!
+        const supabaseUrl = 'https://zewgvucgnpswdkghxdyt.supabase.co';
+        const supabaseKey = 'sb_publishable_r7KERAxppLzbhJw5mE9gOg_rvxpAXi7';
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        let allCars = []; 
+        let currentFilter = { brand: 'all', minPrice: 0, maxPrice: 99999999 };
+
+        // 2. 픽카 DB에서 실시간으로 차량 데이터 가져오기 (구글 시트 대체!)
+        async function fetchCars() {
+            try {
+                // supabase의 'cars' 테이블에서 모든 데이터(*)를 가져와라!
+                const { data, error } = await supabase.from('cars').select('*');
+                
+                if (error) throw error; // 에러 나면 잡아내기
+
+                allCars = data; // 가져온 데이터를 저장
+                
+                // 기본 정렬: 가격 낮은 순
+                allCars.sort((a,b) => a.price - b.price);
+                
+                applyFilters(); // 화면에 그리기 시작!
+
+            } catch (e) { 
+                console.error("데이터 로드 실패", e); 
+                document.getElementById('car-list').innerHTML = '<p style="grid-column:1/-1; text-align:center; padding: 50px;">데이터를 불러올 수 없습니다. 관리자에게 문의하세요.</p>';
+            }
+        }
+
+        // 3. 필터 적용 및 화면에 그리기 함수 (이전과 동일)
+        function applyFilters() {
+            const filteredCars = allCars.filter(car => {
+                const passBrand = (currentFilter.brand === 'all' || car.brand === currentFilter.brand);
+                const passPrice = (car.price >= currentFilter.minPrice && car.price <= currentFilter.maxPrice);
+                return passBrand && passPrice;
+            });
+
+            const list = document.getElementById('car-list');
+            
+            if (filteredCars.length === 0) {
+                list.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:100px; color:#999; background: #fff; border-radius:16px;">조건에 맞는 차량이 없습니다.</div>`;
+                return;
+            }
+
+            list.innerHTML = filteredCars.map(car => `
+                <div class="car-card">
+                    <div class="car-img-wrap">
+                        <img src="${car.img}" class="car-img" alt="${car.name}">
+                    </div>
+                    <div class="car-info">
+                        <div class="car-brand">${car.brand}</div>
+                        <h3 class="car-name">${car.name}</h3>
+                        <p style="font-size:13px; color:var(--text-sub); margin-bottom:10px;">${car.cond}</p>
+                        <div class="car-price">월 ${car.price.toLocaleString()}<span>원~</span></div>
+                        <a href="contact.html?car=${encodeURIComponent(car.name)}" class="btn-quote">견적 신청하기</a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 4. 버튼 클릭 이벤트 (이전과 동일)
+        document.querySelectorAll('.brand-filter').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.brand-filter').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                currentFilter.brand = e.target.getAttribute('data-brand');
+                applyFilters();
+            });
+        });
+
+        document.querySelectorAll('.price-filter').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.price-filter').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                currentFilter.minPrice = Number(e.target.getAttribute('data-min'));
+                currentFilter.maxPrice = Number(e.target.getAttribute('data-max'));
+                applyFilters();
+            });
+        });
+
+        // 데이터 로드 엔진 시동!
+        fetchCars();
+    </script>
+  
 </body>
 </html>
