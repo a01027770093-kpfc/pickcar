@@ -1,13 +1,22 @@
 <!DOCTYPE html>
 <html lang="ko">
-<style>
-        /* 💡 대표님, 메뉴가 안 보일 수 없도록 배경색과 위치를 강제 고정했습니다 */
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>상담 및 창업 문의 | PICK CAR</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link rel="stylesheet" href="css/style.css">
+
+    <style>
+        /* [메뉴 및 레이아웃 강제 고정] */
         header {
             position: fixed; top: 0; left: 0; width: 100%; height: 80px; 
-            background: #ffffff !important; /* 배경 흰색 강제 */
-            border-bottom: 1px solid #eeeeee; 
-            z-index: 9999; /* 무조건 맨 위로 */
-            display: flex; align-items: center;
+            background: #ffffff !important; border-bottom: 1px solid #eeeeee; 
+            z-index: 9999; display: flex; align-items: center;
         }
         .header-inner {
             max-width: 1200px; margin: 0 auto; width: 100%; padding: 0 20px;
@@ -16,15 +25,55 @@
         .logo { font-size: 26px; font-weight: 900; color: #0052CC !important; text-decoration: none; }
         .nav-links { display: flex; gap: 30px; }
         .nav-links a { text-decoration: none; color: #333333 !important; font-weight: 700; font-size: 16px; }
-        .nav-links a:hover, .nav-links a.active { color: #0052CC !important; }
+        .nav-links a.active { color: #0052CC !important; }
 
-        /* [문의 페이지 전용 스타일 - 여백 조정] */
         .contact-hero {
-            padding: 140px 0 60px; /* 헤더 높이 고려해서 조정 */
+            padding: 160px 0 80px;
             background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
             text-align: center;
         }
-        /* ... 이하 기존 스타일 유지 ... */
+        .contact-hero h1 { font-size: clamp(32px, 5vw, 48px); font-weight: 900; color: #1a202c; }
+
+        .contact-wrap {
+            max-width: 800px; margin: -60px auto 100px;
+            background: #fff; border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+            border: 1px solid #eee; overflow: hidden; position: relative; z-index: 10;
+        }
+
+        /* [탭 메뉴 스타일] */
+        .tab-menu { display: flex; background: #f8fafc; border-bottom: 1px solid #eee; }
+        .tab-btn {
+            flex: 1; padding: 25px 0; text-align: center; font-size: 18px; font-weight: 800; 
+            color: #718096; cursor: pointer; border: none; background: transparent; transition: 0.3s;
+        }
+        .tab-btn.active { color: #0052CC; background: #fff; border-bottom: 3px solid #0052CC; }
+
+        /* [폼 영역 상세 스타일] */
+        .form-area { padding: 50px; }
+        .form-group { margin-bottom: 25px; }
+        .form-label { display: block; font-weight: 700; margin-bottom: 10px; font-size: 15px; color: #1a202c; }
+        .form-label span.req { color: #E53E3E; margin-left: 5px; }
+        .form-input, .form-select, .form-textarea {
+            width: 100%; padding: 18px; border: 1.5px solid #edf2f7; border-radius: 12px;
+            font-size: 16px; background: #fafafa; transition: 0.3s; outline: none;
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: #0052CC; background: #fff; box-shadow: 0 0 0 4px rgba(0,82,204,0.1); }
+        .form-textarea { height: 150px; resize: none; }
+
+        /* [개인정보 동의 박스] */
+        .privacy-wrap { margin: 30px 0; padding: 20px; background: #f8fafc; border-radius: 12px; border: 1px solid #eee; }
+        .privacy-box { height: 80px; overflow-y: auto; font-size: 13px; color: #718096; margin-bottom: 15px; padding: 10px; background: #fff; border: 1px solid #eee; border-radius: 8px; }
+        .checkbox-label { display: flex; align-items: center; gap: 10px; font-weight: 600; cursor: pointer; }
+
+        .btn-submit {
+            width: 100%; padding: 22px; background: #0052CC; color: #fff; border: none;
+            border-radius: 12px; font-size: 20px; font-weight: 800; cursor: pointer; transition: 0.3s;
+            display: flex; justify-content: center; align-items: center; gap: 10px;
+        }
+        .btn-submit:hover { background: #003D99; transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,82,204,0.3); }
+
+        @media (max-width: 768px) { .form-area { padding: 30px 20px; } .nav-links { display: none; } }
     </style>
 </head>
 <body>
@@ -35,95 +84,7 @@
             <nav class="nav-links">
                 <a href="index.html#about">픽카 소개</a>
                 <a href="index.html#car-list">차량견적</a>
-                <a href="contact.html" class="active">상담/창업문의</a>
-            </nav>
-        </div>
-    </header>
-
-    <main>
-        ```
-
----
-
-### 🔍 왜 이렇게 바꿔야 하나요?
-
-1.  **`!important` 사용**: `style.css`에서 혹시라도 메뉴를 투명하게 하거나 숨겼을지 모르니, 무조건 보이게 "강제 명령"을 내린 겁니다.
-2.  **`z-index: 9999`**: 배경 이미지나 다른 상자들이 메뉴를 덮지 못하게 맨 앞으로 끄집어냈습니다.
-3.  **주소 매칭**: 그냥 `#about`이라고 쓰면 `contact.html` 안에서만 찾으려고 해서 안 움직입니다. **`index.html#about`**으로 써야 메인 페이지로 넘어가서 해당 위치를 찾아갑니다.
-
-**"대표님, 이제 `contact.html` 새로고침 하시면 상단에 파란 로고랑 메뉴가 시원하게 보일 겁니다!"** 혹시 메뉴 글자색을 픽카 블루로 통일하고 싶으시면 말씀하세요. 색상 코드만 싹 바꿔 드릴게요! 🚗💨
-
-**Would you like me to...**
-* 메뉴가 보이기 시작했다면, 이제 **모바일에서 손가락으로 누르기 편하게 메뉴 간격을 더 벌려 드릴까요?**
-
-        /* 탭 메뉴 (견적 vs 창업) */
-        .tab-menu { display: flex; border-bottom: 1px solid var(--border); background: var(--bg-gray); }
-        .tab-btn {
-            flex: 1; padding: 25px 0; text-align: center;
-            font-size: 18px; font-weight: 800; color: var(--text-sub);
-            cursor: pointer; transition: 0.3s; background: transparent; border: none;
-            position: relative;
-        }
-        .tab-btn.active { color: var(--primary); background: #fff; }
-        .tab-btn.active::after {
-            content: ''; position: absolute; bottom: -1px; left: 0;
-            width: 100%; height: 3px; background: var(--primary);
-        }
-
-        /* 폼 영역 */
-        .form-area { padding: 50px; }
-        .form-group { margin-bottom: 25px; }
-        .form-label { display: block; font-weight: 700; margin-bottom: 10px; font-size: 15px; color: var(--text-main); }
-        .form-label span.req { color: var(--accent); margin-left: 5px; }
-        
-        .form-input, .form-select, .form-textarea {
-            width: 100%; padding: 18px;
-            border: 1px solid var(--gray-200); border-radius: 12px;
-            font-size: 16px; background: #fafafa; transition: 0.3s;
-        }
-        .form-input:focus, .form-select:focus, .form-textarea:focus {
-            border-color: var(--primary); background: #fff; outline: none; box-shadow: 0 0 0 4px var(--primary-light);
-        }
-        .form-textarea { height: 150px; resize: none; }
-
-        /* 개인정보 동의 */
-        .privacy-wrap {
-            margin: 30px 0; padding: 20px;
-            background: var(--bg-gray); border-radius: 12px;
-            border: 1px solid var(--border);
-        }
-        .privacy-box { height: 80px; overflow-y: auto; font-size: 13px; color: var(--text-sub); margin-bottom: 15px; padding: 10px; background: #fff; border: 1px solid #eee; border-radius: 8px; }
-        .checkbox-label { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; cursor: pointer; }
-        .checkbox-label input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--primary); cursor: pointer; }
-
-        /* 제출 버튼 */
-        .btn-submit {
-            width: 100%; padding: 22px;
-            background: var(--primary); color: #fff; border: none;
-            border-radius: 12px; font-size: 20px; font-weight: 800;
-            cursor: pointer; transition: 0.3s;
-            display: flex; justify-content: center; align-items: center; gap: 10px;
-        }
-        .btn-submit:hover { background: var(--primary-dark); transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,82,204,0.3); }
-        .btn-submit:disabled { background: var(--gray-200); cursor: not-allowed; transform: none; box-shadow: none; }
-
-        /* 모바일 대응 */
-        @media (max-width: 768px) {
-            .contact-hero h1 { font-size: 36px; }
-            .form-area { padding: 30px 20px; }
-            .tab-btn { font-size: 16px; padding: 20px 0; }
-        }
-    </style>
-</head>
-<body>
-
-    <header>
-        <div class="container header-inner">
-            <a href="index.html" class="logo">PICK CAR</a>
-            <nav class="nav">
-                <a href="about.html">픽카 소개</a>
-                <a href="compare.html">할부·렌트·리스 비교</a>
-                <a href="cars.html">차량견적</a>
+                <a href="index.html#compare">금융비교</a>
                 <a href="contact.html" class="active">상담/창업문의</a>
             </nav>
         </div>
@@ -133,212 +94,139 @@
         <section class="contact-hero">
             <div class="container" data-aos="fade-up">
                 <h1>빠르고 정확한 상담</h1>
-                <p>신차 견적부터 에이전시 창업까지, 픽카가 확실하게 답변해 드립니다.</p>
+                <p>신차 견적부터 창업 문의까지, 픽카가 확실하게 답변해 드립니다.</p>
             </div>
         </section>
 
-        <section class="contact-section">
-            <div class="container">
-                <div class="contact-wrap" data-aos="fade-up" data-aos-delay="100">
-                    
-                    <div class="tab-menu">
-                        <button class="tab-btn active" onclick="switchTab('quote')">🚗 신차 견적 문의</button>
-                        <button class="tab-btn" onclick="switchTab('franchise')">🏢 프랜차이즈 창업 문의</button>
-                    </div>
+        <section class="container">
+            <div class="contact-wrap" data-aos="fade-up">
+                <div class="tab-menu">
+                    <button class="tab-btn active" id="tab-quote" onclick="switchTab('quote')">🚗 신차 견적 문의</button>
+                    <button class="tab-btn" id="tab-franchise" onclick="switchTab('franchise')">🏢 창업 문의</button>
+                </div>
 
-                    <div class="form-area">
-                        <form id="unifiedForm" action="https://formspree.io/f/meelygdy" method="POST">
-                            
-                            <input type="hidden" name="type" id="inquiryType" value="신차견적">
+                <div class="form-area">
+                    <form id="unifiedForm">
+                        <input type="hidden" name="type" id="inquiryType" value="신차견적">
+                        
+                        <div class="form-group">
+                            <label class="form-label">성함 / 상호명 <span class="req">*</span></label>
+                            <input type="text" name="name" class="form-input" placeholder="성함을 입력하세요" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">연락처 <span class="req">*</span></label>
+                            <input type="tel" name="phone" class="form-input" placeholder="010-0000-0000" required>
+                        </div>
 
+                        <div id="quoteFields">
                             <div class="form-group">
-                                <label class="form-label">성함 / 상호명 <span class="req">*</span></label>
-                                <input type="text" name="name" class="form-input" placeholder="홍길동 또는 (주)픽카" required>
+                                <label class="form-label">희망 차종 <span class="req">*</span></label>
+                                <input type="text" name="car_name" class="form-input" placeholder="예: 그랜저 하이브리드">
                             </div>
-
                             <div class="form-group">
-                                <label class="form-label">연락처 <span class="req">*</span></label>
-                                <input type="tel" name="phone" class="form-input" placeholder="010-0000-0000 (숫자만 입력해도 됩니다)" required>
+                                <label class="form-label">구매 방식</label>
+                                <select name="buy_method" class="form-select">
+                                    <option value="장기렌트">장기렌트 (추천)</option>
+                                    <option value="리스">자동차 리스</option>
+                                    <option value="할부">신차 할부</option>
+                                </select>
                             </div>
+                        </div>
 
-                            <div id="quoteFields">
-                                <div class="form-group">
-                                    <label class="form-label">희망 차종 <span class="req">*</span></label>
-                                    <input type="text" name="car_name" id="carNameInput" class="form-input" placeholder="예: 더 뉴 그랜저 하이브리드">
-                                </div>
-                                <div class="form-group" style="display: flex; gap: 20px;">
-                                    <div style="flex:1;">
-                                        <label class="form-label">구매 방식</label>
-                                        <select name="buy_method" class="form-select">
-                                            <option value="미정(상담요청)">상담 후 결정</option>
-                                            <option value="장기렌트">장기렌트</option>
-                                            <option value="리스">자동차 리스</option>
-                                            <option value="할부">신차 할부</option>
-                                            <option value="일시불">일시불</option>
-                                        </select>
-                                    </div>
-                                    <div style="flex:1;">
-                                        <label class="form-label">예상 시기</label>
-                                        <select name="timing" class="form-select">
-                                            <option value="즉시출고">즉시 출고 희망</option>
-                                            <option value="1개월내">1개월 이내</option>
-                                            <option value="3개월내">3개월 이내</option>
-                                            <option value="미정">미정</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div id="franchiseFields" style="display: none;">
-                                <div class="form-group">
-                                    <label class="form-label">희망 지역</label>
-                                    <input type="text" name="region" class="form-input" placeholder="예: 강원도 춘천시">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">현재 직업 / 경험 유무</label>
-                                    <input type="text" name="experience" class="form-input" placeholder="예: 타사 영업 경험 있음, 또는 무경험">
-                                </div>
-                            </div>
-
+                        <div id="franchiseFields" style="display:none;">
                             <div class="form-group">
-                                <label class="form-label">상세 문의 내용</label>
-                                <textarea name="message" class="form-textarea" placeholder="원하시는 옵션, 색상, 또는 창업 관련 궁금하신 점을 자유롭게 남겨주세요."></textarea>
+                                <label class="form-label">희망 지역 <span class="req">*</span></label>
+                                <input type="text" name="region" class="form-input" placeholder="예: 강원 원주시">
                             </div>
+                        </div>
 
-                            <div class="privacy-wrap">
-                                <div class="privacy-box">
-                                    [개인정보 수집 및 이용 동의]<br>
-                                    1. 수집 항목: 성함, 연락처, 상담 내용<br>
-                                    2. 수집 목적: 견적 산출, 상담 진행, 창업 안내<br>
-                                    3. 보유 기간: 상담 종료 후 6개월 보관 후 파기<br>
-                                    * 동의를 거부할 권리가 있으나, 거부 시 원활한 상담이 어려울 수 있습니다.
-                                </div>
-                                <label class="checkbox-label">
-                                    <input type="checkbox" id="privacyCheck" required>
-                                    개인정보 수집 및 이용에 동의합니다. (필수)
-                                </label>
+                        <div class="form-group">
+                            <label class="form-label">상세 문의내용</label>
+                            <textarea name="message" class="form-textarea" placeholder="추가 문의사항을 입력해주세요."></textarea>
+                        </div>
+
+                        <div class="privacy-wrap">
+                            <div class="privacy-box">
+                                [개인정보 수집동의]<br>1. 수집항목: 이름, 연락처, 상담내용<br>2. 수집목적: 신차 견적 상담 및 지점 창업 안내<br>3. 보유기간: 상담 완료 후 1년 (이후 즉시 파기)
                             </div>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="privacyCheck" required> 개인정보 수집 및 이용에 동의합니다.
+                            </label>
+                        </div>
 
-                            <button type="submit" class="btn-submit" id="submitBtn">
-                                <i class="fa-regular fa-paper-plane"></i> 상담 신청 완료하기
-                            </button>
-                        </form>
-                    </div>
+                        <button type="submit" class="btn-submit" id="submitBtn">
+                            <i class="fa-regular fa-paper-plane"></i> 상담 신청 완료하기
+                        </button>
+                    </form>
                 </div>
             </div>
         </section>
     </main>
 
-    <footer>
-        <div class="container">
-            <h2 style="color: var(--primary); font-weight: 900; margin-bottom: 10px;">PICK CAR</h2>
-            <p>강원도 원주시 | 신차 종합 에이전시 픽카 | 대표: 이종현</p>
-            <p style="margin-top: 20px; font-size: 14px; opacity: 0.5;">© 2026 PICK CAR Franchise. All Rights Reserved.</p>
-        </div>
-    </footer>
-
     <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
-    <script src="js/common.js"></script>
     <script>
-        // 1. 초기 시동 (AOS 애니메이션)
         AOS.init({ duration: 800, once: true });
 
-        // 2. 서버 및 텔레그램 설정 (대표님 열쇠)
+        // 수파베이스 설정
         const supabaseUrl = 'https://zewgvucgnpswdkghxdyt.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpld2d2dWNnbnBzd2RrZ2h4ZHl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwNzQ4MjMsImV4cCI6MjA4ODY1MDgyM30.WfBS_D3U-8c71Mu3eASp-mF_wuwe5MJp66UJKkPPZio';
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
         const TG_TOKEN = '8716905489:AAENMbkYCjMbsA302CTQdN3Cd7AEnzVYoqE';
-        const TG_CHAT_ID = '1477708575';
+        const TG_CHAT_ID = '8716905489';
 
-        // 3. 차종 자동 입력 (cars.html에서 넘어올 때)
-        document.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const carName = urlParams.get('car');
-            const carInput = document.getElementById('carNameInput');
-            if(carName && carInput) {
-                carInput.value = carName;
-                carInput.style.backgroundColor = '#eef2ff';
-            }
-        });
-
-        // 4. 탭 전환 (견적 vs 창업)
         function switchTab(type) {
-            const btns = document.querySelectorAll('.tab-btn');
+            const quote = document.getElementById('quoteFields');
+            const franchise = document.getElementById('franchiseFields');
             const typeInput = document.getElementById('inquiryType');
-            const quoteFields = document.getElementById('quoteFields');
-            const franchiseFields = document.getElementById('franchiseFields');
-            const carInput = document.getElementById('carNameInput');
+            const tabs = document.querySelectorAll('.tab-btn');
 
-            btns.forEach(b => b.classList.remove('active'));
+            tabs.forEach(t => t.classList.remove('active'));
 
-            if (type === 'quote') {
-                btns[0].classList.add('active');
-                if(typeInput) typeInput.value = '신차견적';
-                if(quoteFields) quoteFields.style.display = 'block';
-                if(franchiseFields) franchiseFields.style.display = 'none';
-                if(carInput) carInput.setAttribute('required', 'true');
+            if(type === 'quote') {
+                document.getElementById('tab-quote').classList.add('active');
+                quote.style.display = 'block'; franchise.style.display = 'none';
+                typeInput.value = '신차견적';
             } else {
-                btns[1].classList.add('active');
-                if(typeInput) typeInput.value = '창업문의';
-                if(quoteFields) quoteFields.style.display = 'none';
-                if(franchiseFields) franchiseFields.style.display = 'block';
-                if(carInput) carInput.removeAttribute('required');
+                document.getElementById('tab-franchise').classList.add('active');
+                quote.style.display = 'none'; franchise.style.display = 'block';
+                typeInput.value = '창업문의';
             }
         }
 
-        // 5. 통합 전송 엔진 (DB저장 + 텔레그램 + 폼스프리)
         document.getElementById('unifiedForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            if(!document.getElementById('privacyCheck').checked) {
-                alert("개인정보 수집 및 이용에 동의해주세요.");
-                return;
-            }
-
-            const form = e.target;
             const btn = document.getElementById('submitBtn');
-            const formData = new FormData(form);
+            const formData = new FormData(e.target);
             const data = Object.fromEntries(formData.entries());
+
+            if(!document.getElementById('privacyCheck').checked) return alert("동의가 필요합니다.");
 
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 전송 중...';
             btn.disabled = true;
 
             try {
-                // [A] 수파베이스 DB 저장
+                // 1. DB 저장
                 await supabaseClient.from('contacts').insert([{
-                    user_name: data.name,
-                    user_phone: data.phone,
-                    car_item: data.type === '신차견적' ? (data.car_name || '미기재') : '창업문의',
-                    region: data.type === '신차견적' ? (data.buy_method || '신차상담') : (data.region || '지역미기재'),
-                    memo: `[시기:${data.timing || '-'}/경험:${data.experience || '-'}] ${data.message || ''}`,
-                    status: '신규접수'
+                    user_name: data.name, user_phone: data.phone,
+                    car_item: data.type === '신차견적' ? data.car_name : '창업상담',
+                    contract_method: data.buy_method || data.region || '미정',
+                    memo: data.message, status: '신규접수', site_name: 'PICK CAR 본사'
                 }]);
 
-                // [B] 폼스프리 백업 전송
-                fetch(form.action, { method: 'POST', body: formData, headers: { 'Accept': 'application/json' } });
-
-                // [C] 텔레그램 실시간 알림
-                let msg = data.type === '신차견적' 
-                    ? `🚨 [픽카 견적 문의]\n👤 성함: ${data.name}\n📞 연락처: ${data.phone}\n🚘 차종: ${data.car_name}\n💳 방식: ${data.buy_method}\n💬 내용: ${data.message}`
-                    : `🏢 [픽카 창업 문의]\n👤 성함: ${data.name}\n📞 연락처: ${data.phone}\n📍 지역: ${data.region || '미기재'}\n💼 경험: ${data.experience || '미기재'}\n💬 내용: ${data.message}`;
-                
+                // 2. 텔레그램 발송
+                const msg = `🚨 [픽카 신규문의]\n━━━━━━━━━━━━\n👤 성함: ${data.name}\n📞 번호: ${data.phone}\n📂 분류: ${data.type}\n📝 내용: ${data.car_name || data.region}\n💬 메모: ${data.message}`;
                 await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ chat_id: TG_CHAT_ID, text: msg })
                 });
 
-                alert("접수가 완료되었습니다. 담당자가 빠르게 연락드리겠습니다!");
-                form.reset();
-                switchTab('quote');
-
-            } catch(error) {
-                console.error("오류:", error);
-                alert("일시적인 오류가 발생했습니다. 전화(1588-9097)로 문의 부탁드립니다.");
-            } finally {
-                btn.innerHTML = '<i class="fa-regular fa-paper-plane"></i> 상담 신청 완료하기';
+                alert("접수 완료! 대표님이 확인 후 연락드리겠습니다.");
+                location.reload();
+            } catch(e) {
+                alert("오류가 발생했습니다. 본사(1588-9097)로 전화주세요!");
                 btn.disabled = false;
+                btn.innerText = "상담 신청 완료하기";
             }
         });
     </script>
