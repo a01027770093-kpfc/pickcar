@@ -1,93 +1,198 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>PICKCAR | 차량견적</title>
-  <link rel="stylesheet" href="assets/css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>실시간 차량견적 | PICK CAR</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* 차량 페이지 전용 스타일 */
+        .car-layout { display: flex; gap: 40px; margin-top: 40px; }
+        .sidebar { width: 250px; flex-shrink: 0; }
+        .filter-group { background: var(--bg-gray); padding: 25px; border-radius: 16px; margin-bottom: 20px; }
+        .filter-group h4 { font-size: 16px; font-weight: 800; margin-bottom: 15px; }
+        .filter-btn { display: block; width: 100%; padding: 12px 15px; margin-bottom: 8px; border: 1px solid var(--border); background: #fff; border-radius: 8px; text-align: left; cursor: pointer; transition: 0.2s; font-weight: 600; }
+        .filter-btn:hover, .filter-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+        
+        .car-grid { flex-grow: 1; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; align-content: start; }
+        .car-card { border: 1px solid var(--border); border-radius: 16px; overflow: hidden; background: #fff; transition: 0.3s; }
+        .car-card:hover { transform: translateY(-5px); box-shadow: var(--shadow); border-color: var(--primary); }
+        .car-img-wrap { background: var(--bg-gray); padding: 20px; text-align: center; }
+        .car-img { width: 100%; height: 160px; object-fit: contain; }
+        .car-info { padding: 20px; }
+        .car-brand { font-size: 12px; color: var(--primary); font-weight: 700; }
+        .car-name { font-size: 18px; font-weight: 800; margin: 5px 0 10px; }
+        .car-price { font-size: 22px; font-weight: 900; color: var(--accent); }
+        .car-price span { font-size: 14px; font-weight: 500; color: var(--text-sub); }
+        .btn-quote { display: block; width: 100%; padding: 12px; text-align: center; background: var(--primary); color: #fff; border-radius: 8px; margin-top: 15px; font-weight: 700; }
+        
+        /* 스켈레톤 UI (로딩) */
+        .skeleton { background: #eee; border-radius: 8px; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+    </style>
 </head>
 <body>
-<header class="header">
-  <div class="wrap header__inner">
-    <a class="brand" href="index.html"><span class="brand__logo">PX</span><span class="brand__text"><b>PICKCAR</b><small>신차 종합 에이전시</small></span></a>
-    <nav class="nav">
-      <a href="index.html">홈</a>
-      <a href="cars.html" class="is-active">차량견적</a>
-      <a href="compare.html">구매방식 비교</a>
-      <a href="contact.html">즉시상담</a>
-      <a href="about.html">픽카소개</a>
-    </nav>
-    <a class="btn btn--primary" href="contact.html">빠른 상담</a>
-  </div>
-</header>
 
-<section class="page-title">
-  <div class="wrap">
-    <h1>차량 견적 (예상가)</h1>
-    <p class="muted">차량을 클릭하면 조건(렌트/리스, 48/60, 선수금30%)을 선택할 수 있습니다.</p>
-  </div>
-</section>
+    <header>
+        <div class="container header-inner">
+            <a href="index.html" class="logo">PICK CAR</a>
+            <nav class="nav">
+                <a href="about.html">픽카 소개</a>
+                <a href="compare.html">할부·렌트·리스 비교</a>
+                <a href="cars.html">차량견적</a>
+                <a href="contact.html">상담/창업문의</a>
+            </nav>
+        </div>
+    </header>
 
-<section class="section">
-  <div class="wrap">
-    <div class="filters">
-      <div class="panel">
-        <b>차량 검색</b>
-        <p class="muted">예: 카니발, 그랜저, E클래스</p>
-        <input class="input" id="search" placeholder="검색어 입력" />
-      </div>
-      <div class="panel">
-        <b>안내</b>
-        <p class="note">표시 금액은 예상입니다. 정확 견적은 상담으로 확정됩니다.</p>
-        <a class="btn btn--primary" href="contact.html">상담으로 확정 견적 받기</a>
-      </div>
+    <main class="section-padding">
+        <div class="container">
+            <h2 class="section-title">실시간 <span>차량견적</span></h2>
+            <p class="section-desc">구글 시트와 연동되어 실시간으로 업데이트되는 150여 대의 특가 차량입니다.</p>
+
+            <div class="car-layout">
+                <aside class="sidebar">
+                    <div class="filter-group">
+                        <h4>제조사별 검색</h4>
+                        <button class="filter-btn brand-filter active" data-brand="all">전체보기</button>
+                        <button class="filter-btn brand-filter" data-brand="현대">현대자동차</button>
+                        <button class="filter-btn brand-filter" data-brand="기아">기아자동차</button>
+                        <button class="filter-btn brand-filter" data-brand="제네시스">제네시스</button>
+                        <button class="filter-btn brand-filter" data-brand="수입차">수입차</button>
+                    </div>
+
+                    <div class="filter-group">
+                        <h4>가격대별 검색</h4>
+                        <button class="filter-btn price-filter active" data-min="0" data-max="99999999">전체보기</button>
+                        <button class="filter-btn price-filter" data-min="0" data-max="400000">40만 원 이하</button>
+                        <button class="filter-btn price-filter" data-min="400000" data-max="700000">40~70만 원</button>
+                        <button class="filter-btn price-filter" data-min="700000" data-max="1000000">70~100만 원</button>
+                        <button class="filter-btn price-filter" data-min="1000000" data-max="99999999">100만 원 이상</button>
+                    </div>
+                </aside>
+
+                <div class="car-grid" id="car-list">
+                    <div class="car-card"><div class="skeleton" style="height: 200px;"></div><div class="car-info"><div class="skeleton" style="height:20px; width:50%; margin-bottom:10px;"></div><div class="skeleton" style="height:30px; width:80%;"></div></div></div>
+                    <div class="car-card"><div class="skeleton" style="height: 200px;"></div><div class="car-info"><div class="skeleton" style="height:20px; width:50%; margin-bottom:10px;"></div><div class="skeleton" style="height:30px; width:80%;"></div></div></div>
+                    <div class="car-card"><div class="skeleton" style="height: 200px;"></div><div class="car-info"><div class="skeleton" style="height:20px; width:50%; margin-bottom:10px;"></div><div class="skeleton" style="height:30px; width:80%;"></div></div></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <h2 style="color: var(--primary); font-weight: 900; margin-bottom: 10px;">PICK CAR</h2>
+            <p>강원도 원주시 | 신차 종합 에이전시 픽카 | 대표: 이종현</p>
+        </div>
+    </footer>
+
+    <div class="floating-btns">
+        <a href="http://pf.kakao.com/_YOUR_KAKAO_ID/chat" target="_blank" class="float-btn kakao"><i class="fa-solid fa-comment"></i></a>
+        <a href="tel:1588-9097" class="float-btn call"><i class="fa-solid fa-phone-volume"></i></a>
     </div>
 
-    <div class="grid" id="carsGrid"></div>
-  </div>
-</section>
+    <script src="js/common.js"></script>
+    
+    <script>
+        const SHEET_ID = '1id0jWui5_lKnnk0j_fAZMUnNFjv92xUUNVIHZGXr1vE';
+        const DATA_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
 
-<footer class="footer"><div class="wrap">© PICKCAR</div></footer>
+        let allCars = []; // 원본 데이터 150+대
+        
+        // 현재 선택된 필터 상태
+        let currentFilter = {
+            brand: 'all',
+            minPrice: 0,
+            maxPrice: 99999999
+        };
 
-<script src="assets/js/data.js"></script>
-<script>
-  const DATA = window.PICKCAR_DATA?.cars || [];
-  const grid = document.getElementById("carsGrid");
-  const input = document.getElementById("search");
+        // 1. 데이터 불러오기 (자동 업데이트의 핵심)
+        async function fetchCars() {
+            try {
+                const res = await fetch(DATA_URL);
+                const text = await res.text();
+                const json = JSON.parse(text.substr(47).slice(0, -2));
+                
+                allCars = json.table.rows.map(row => ({
+                    brand: row.c[0]?.v || "기타",
+                    name: row.c[1]?.v || "차종 미정",
+                    cond: row.c[2]?.v || "상담 후 결정",
+                    price: Number(row.c[3]?.v) || 0,
+                    img: row.c[4]?.v || "https://via.placeholder.com/400x250?text=IMG"
+                }));
+                
+                // 기본 정렬: 가격 낮은 순
+                allCars.sort((a,b) => a.price - b.price);
+                
+                applyFilters(); // 초기 렌더링 (전체보기)
 
-  function card(c){
-    const base = c?.prices?.rent?.p3?.d30?.t60?.km1;
-    const priceText = (typeof base==="number") ? `월 ${base}만원~` : `월 비용 보기`;
-    return `
-      <a class="car" href="car.html?id=${encodeURIComponent(c.id)}">
-        <div class="car__img"><img src="${c.img}" alt=""></div>
-        <div class="car__body">
-          <b>${c.brand} ${c.model}</b>
-          <small class="muted">${c.trim||""}</small>
-          <div class="price">${priceText}</div>
-          <span class="badge">${c.fuel||""} · ${c.type||""}</span>
-        </div>
-      </a>`;
-  }
+            } catch (e) { 
+                console.error("데이터 로드 실패", e); 
+                document.getElementById('car-list').innerHTML = '<p style="grid-column:1/-1; text-align:center;">데이터를 불러올 수 없습니다.</p>';
+            }
+        }
 
-  function render(list){
-    grid.innerHTML = list.map(card).join("");
-  }
+        // 2. 필터 적용 및 렌더링 함수
+        function applyFilters() {
+            // 다중 필터 적용 (브랜드 AND 가격대)
+            const filteredCars = allCars.filter(car => {
+                const passBrand = (currentFilter.brand === 'all' || car.brand === currentFilter.brand);
+                const passPrice = (car.price >= currentFilter.minPrice && car.price <= currentFilter.maxPrice);
+                return passBrand && passPrice;
+            });
 
-  const params = new URLSearchParams(location.search);
-  const q = (params.get("q")||"").trim();
-  if(q) input.value = q;
+            const list = document.getElementById('car-list');
+            
+            if (filteredCars.length === 0) {
+                list.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:100px; color:#999; background: #fff; border-radius:16px;">조건에 맞는 차량이 없습니다.</div>`;
+                return;
+            }
 
-  function apply(){
-    const s = (input.value||"").trim().toLowerCase();
-    const list = !s ? DATA : DATA.filter(c =>
-      (`${c.brand} ${c.model} ${c.trim}`.toLowerCase().includes(s))
-    );
-    render(list);
-  }
+            list.innerHTML = filteredCars.map(car => `
+                <div class="car-card">
+                    <div class="car-img-wrap">
+                        <img src="${car.img}" class="car-img" alt="${car.name}">
+                    </div>
+                    <div class="car-info">
+                        <div class="car-brand">${car.brand}</div>
+                        <h3 class="car-name">${car.name}</h3>
+                        <p style="font-size:13px; color:var(--text-sub); margin-bottom:10px;">${car.cond}</p>
+                        <div class="car-price">월 ${car.price.toLocaleString()}<span>원~</span></div>
+                        <a href="contact.html?car=${encodeURIComponent(car.name)}" class="btn-quote">견적 신청하기</a>
+                    </div>
+                </div>
+            `).join('');
+        }
 
-  input.addEventListener("input", apply);
-  apply();
-</script>
+        // 3. 필터 버튼 클릭 이벤트 설정
+        document.querySelectorAll('.brand-filter').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                // 버튼 스타일 변경
+                document.querySelectorAll('.brand-filter').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                
+                // 상태 업데이트 및 필터 적용
+                currentFilter.brand = e.target.getAttribute('data-brand');
+                applyFilters();
+            });
+        });
+
+        document.querySelectorAll('.price-filter').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.price-filter').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                
+                currentFilter.minPrice = Number(e.target.getAttribute('data-min'));
+                currentFilter.maxPrice = Number(e.target.getAttribute('data-max'));
+                applyFilters();
+            });
+        });
+
+        // 데이터 로드 시작
+        fetchCars();
+    </script>
 </body>
 </html>
