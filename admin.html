@@ -89,22 +89,24 @@
             <div class="nav-item active" onclick="showSection('dash', this)">
                 <i class="fa-solid fa-chart-pie"></i> 대시보드
             </div>
-            <div class="nav-item" onclick="showSection('cars', this)">
-                <i class="fa-solid fa-car"></i> 차량 DB 관리
-            </div>
-            <div class="nav-item" onclick="showSection('sites', this)">
-                <i class="fa-solid fa-building"></i> 대리점(지점) 관리
-            </div>
-            <div class="nav-item" onclick="showSection('inquiry', this)">
-                <i class="fa-solid fa-file-invoice"></i> 고객 문의 내역
-                <span class="badge-count" id="badge-new-count">0</span>
-            </div>
-            <div class="nav-item" onclick="showSection('staff', this)">
-                <i class="fa-solid fa-users"></i> 본사 임직원 관리
-            </div>
-            <div class="nav-item" onclick="alert('시스템 설정 페이지 준비 중')">
-                <i class="fa-solid fa-gear"></i> 시스템 설정
-            </div>
+          <div class="nav-menu">
+    <div class="nav-item active" onclick="showSection('dash', this)">
+        <i class="fa-solid fa-chart-pie"></i> 대시보드
+    </div>
+    <div class="nav-item" onclick="showSection('cars', this)">
+        <i class="fa-solid fa-car"></i> 차량 DB 관리
+    </div>
+    <div class="nav-item" onclick="showSection('sites', this)">
+        <i class="fa-solid fa-building"></i> 대리점(지점) 관리
+    </div>
+    <div class="nav-item" onclick="showSection('inquiry', this)">
+        <i class="fa-solid fa-file-invoice"></i> 고객 문의 내역 
+        <span class="badge-count" id="badge-new-count">0</span>
+    </div>
+    <div class="nav-item" onclick="showSection('staff', this)">
+        <i class="fa-solid fa-users"></i> 본사 임직원 관리
+    </div>
+</div>
         </div>
         <div style="padding: 24px; border-top: 1px solid rgba(255,255,255,0.05);">
             <button style="width:100%; padding:12px; background:rgba(255,255,255,0.1); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700;" onclick="location.reload()">로그아웃</button>
