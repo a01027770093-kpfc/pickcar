@@ -454,19 +454,65 @@
             fetchData();
         }
 
-        async function addSite() {
-            const t = document.getElementById('s-title').value;
-            const sl = document.getElementById('s-slug').value;
-            const ph = document.getElementById('s-phone').value;
-            const ceo = document.getElementById('s-ceo').value;
-            const tg = document.getElementById('s-tg').value;
-            const col = document.getElementById('s-color').value;
+        // 💡 지점 분양몰 개통 함수 (로고 URL 추가 및 에러 방지 버전)
+async function addSite() {
+    console.log("개통 프로세스 시작...");
 
-            if(!t || !sl || !ceo) return alert("지점명, 슬러그, 대표자명은 필수입니다.");
+    // 1. 화면의 입력칸에서 값 가져오기
+    const title = document.getElementById('s-title').value;
+    const slug = document.getElementById('s-slug').value;
+    const phone = document.getElementById('s-phone').value;
+    const ceo = document.getElementById('s-ceo').value;
+    const tg = document.getElementById('s-tg').value;
+    const logo = document.getElementById('s-logo') ? document.getElementById('s-logo').value : ""; // 로고 URL 칸 확인
 
-            await supabaseClient.from('sites').insert([{ title:t, slug:sl, phone:ph, ceo_name:ceo, telegram_id:tg, theme_color:col }]);
-            alert(`[${t}] 지점 분양몰이 성공적으로 개통되었습니다.`);
-            fetchData();
+    // 2. 필수 항목 체크 (지점명, 슬러그, 대표자명)
+    if(!title || !slug || !ceo) {
+        return alert("대표님, '지점명', '도메인 주소', '대표자명'은 필수 입력 사항입니다!");
+    }
+
+    try {
+        // 버튼 상태 변경 (중복 클릭 방지)
+        const btn = event.target;
+        const originalText = btn.innerText;
+        btn.innerText = "개통 처리 중...";
+        btn.disabled = true;
+
+        // 3. 수파베이스(DB)에 데이터 전송
+        // 💡 주의: s-color는 화면에 없으므로 삭제하고 기본색(#0052CC)으로 고정했습니다.
+        const { error } = await supabaseClient.from('sites').insert([{ 
+            title: title, 
+            slug: slug, 
+            phone: phone, 
+            ceo_name: ceo, 
+            telegram_id: tg, 
+            logo_url: logo,       // 👈 새로 만든 로고 URL 칸
+            theme_color: '#0052CC' // 👈 기본 블루로 고정
+        }]);
+
+        if (error) throw error;
+
+        // 4. 성공 알림 및 화면 갱신
+        alert(`🎊 [${title}] 지점 분양몰이 성공적으로 개통되었습니다!`);
+        
+        // 입력 칸 비우기
+        document.getElementById('s-title').value = "";
+        document.getElementById('s-slug').value = "";
+        document.getElementById('s-ceo').value = "";
+        if(document.getElementById('s-logo')) document.getElementById('s-logo').value = "";
+
+        fetchData(); // 표 새로고침
+
+    } catch (err) {
+        console.error("개통 오류 발생:", err);
+        alert("개통 실패! DB에 'logo_url' 칸이 있는지 확인이 필요합니다.");
+    } finally {
+        // 버튼 복구
+        const btn = event.target;
+        btn.innerText = originalText;
+        btn.disabled = false;
+    }
+}
         }
 
         async function deleteCar(id) {
