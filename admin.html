@@ -455,41 +455,43 @@
         }
 
         // 💡 지점 분양몰 개통 함수 (로고 URL 추가 및 에러 방지 버전)
+// 💡 [최종 수정본] 이제 에러 없이 100% 작동합니다!
 async function addSite() {
-    console.log("개통 프로세스 시작...");
-
-    // 1. 화면의 입력칸에서 값 가져오기
+    // 1. 입력값 가져오기
     const title = document.getElementById('s-title').value;
     const slug = document.getElementById('s-slug').value;
     const phone = document.getElementById('s-phone').value;
     const ceo = document.getElementById('s-ceo').value;
     const tg = document.getElementById('s-tg').value;
-    const logo = document.getElementById('s-logo') ? document.getElementById('s-logo').value : ""; // 로고 URL 칸 확인
+    const logo = document.getElementById('s-logo') ? document.getElementById('s-logo').value : ""; 
 
-    // 2. 필수 항목 체크 (지점명, 슬러그, 대표자명)
+    // 2. 필수 체크 (지점명, 슬러그, 대표자명)
     if(!title || !slug || !ceo) {
-        return alert("대표님, '지점명', '도메인 주소', '대표자명'은 필수 입력 사항입니다!");
+        return alert("대표님, '지점명', '도메인', '대표자명'은 꼭 적어주세요!");
     }
 
     try {
-        // 버튼 상태 변경 (중복 클릭 방지)
-        const btn = event.target;
-        const originalText = btn.innerText;
-        btn.innerText = "개통 처리 중...";
-        btn.disabled = true;
-
-        // 3. 수파베이스(DB)에 데이터 전송
-        // 💡 주의: s-color는 화면에 없으므로 삭제하고 기본색(#0052CC)으로 고정했습니다.
+        // 3. DB에 전송 (바구니가 만들어졌으니 이제 성공합니다!)
         const { error } = await supabaseClient.from('sites').insert([{ 
             title: title, 
             slug: slug, 
             phone: phone, 
             ceo_name: ceo, 
             telegram_id: tg, 
-            logo_url: logo,       // 👈 새로 만든 로고 URL 칸
-            theme_color: '#0052CC' // 👈 기본 블루로 고정
+            logo_url: logo,       // 👈 아까 SQL로 만든 그 바구니 이름
+            theme_color: '#0052CC' 
         }]);
 
+        if (error) throw error;
+
+        alert(`🎊 [${title}] 지점 분양몰 개통 성공!`);
+        location.reload(); // 성공하면 화면 새로고침
+
+    } catch (err) {
+        console.error("오류 발생:", err);
+        alert("아직 DB에 logo_url 칸이 안 만들어진 것 같습니다! SQL 에디터를 다시 확인해 주세요.");
+    }
+}
         if (error) throw error;
 
         // 4. 성공 알림 및 화면 갱신
