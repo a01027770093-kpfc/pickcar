@@ -2,288 +2,229 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PICKCAR | 신차 종합 에이전시</title>
-    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <title>PICK CAR | 대한민국 1등 신차 장기렌트·리스 비교견적</title>
+    <meta name="description" content="전 금융사 실시간 최저가 비교, 픽카(PICK CAR). 무서류 심사, 빠른 출고, 정직한 견적을 약속드립니다.">
+    <meta name="author" content="Lee Jong-hyun">
+    <link rel="canonical" href="https://pickcar.co.kr">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
+
     <style>
-        /* [디자인 설정] */
-        :root { --main-blue: #0052CC; --sub-blue: #003D99; --light-blue: #E6F0FF; --text-black: #1A1A1A; --gray: #F5F7FA; }
-        * { box-sizing: border-box; font-family: 'Pretendard', sans-serif; margin: 0; padding: 0; }
-        body { background-color: #fff; color: var(--text-black); line-height: 1.6; overflow-x: hidden; }
-        .wrap { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-        
-        /* 헤더 디자인 */
-        header { background: rgba(255,255,255,0.95); border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 1000; height: 80px; display: flex; align-items: center; backdrop-filter: blur(10px); }
-        .header__inner { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-        .logo { font-size: 26px; font-weight: 900; color: var(--main-blue); text-decoration: none; cursor: pointer; letter-spacing: -1px; }
-        .nav { display: flex; gap: 30px; }
-        .nav a { text-decoration: none; color: #444; font-weight: 600; font-size: 16px; cursor: pointer; transition: 0.3s; }
-        .nav a:hover { color: var(--main-blue); }
+        /* [1. CSS Variables - 브랜드 컬러 시스템] */
+        :root {
+            --main-blue: #0052CC;      /* 신뢰의 삼성/현대급 블루 */
+            --dark-blue: #0747A6;      /* 호버 및 강조용 */
+            --light-blue: #E7F1FF;     /* 배경 및 포인트용 */
+            --white: #FFFFFF;
+            --gray-50: #F8F9FA;
+            --gray-100: #E9ECEF;
+            --gray-200: #DEE2E6;
+            --gray-700: #495057;
+            --gray-900: #212529;
+            --danger: #E63946;         /* 가격 강조용 */
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.05);
+            --shadow-md: 0 12px 30px rgba(0, 82, 204, 0.1);
+            --transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-        /* 간편견적 플로팅 배너 */
-        .quick-float { position: fixed; right: 20px; top: 120px; z-index: 999; background: #fff; border: 2px solid var(--main-blue); padding: 20px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); width: 240px; transition: 0.3s; }
-        .quick-float h4 { font-size: 15px; color: var(--main-blue); margin-bottom: 15px; text-align: center; font-weight: 800; }
-        .quick-input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; }
-        .quick-input:focus { border-color: var(--main-blue); }
-        .quick-submit { width: 100%; padding: 12px; background: var(--main-blue); color: #fff; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 15px; transition: 0.3s; }
-        .quick-submit:hover { background: var(--sub-blue); }
+        /* [2. Reset & Base] */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { 
+            font-family: 'Pretendard', sans-serif; 
+            background-color: var(--white); 
+            color: var(--gray-900);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
 
-        /* 메인 슬라이더 애니메이션 */
-        .hero { position: relative; height: 600px; overflow: hidden; background: #000; }
-        .slide { position: absolute; width: 100%; height: 100%; opacity: 0; transition: opacity 1.5s ease-in-out; background-size: cover; background-position: center; display: flex; align-items: center; }
-        .slide.active { opacity: 1; }
-        .slide__content { color: #fff; text-shadow: 0 4px 20px rgba(0,0,0,0.6); animation: fadeInUp 1.2s ease-out; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+        /* [3. Header - 디테일한 투명도 및 스크롤 효과] */
+        .pc-header {
+            position: fixed; top: 0; width: 100%; height: 90px;
+            display: flex; align-items: center; z-index: 1000;
+            transition: var(--transition); background: transparent;
+        }
+        .pc-header.scrolled {
+            height: 75px; background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px); border-bottom: 1px solid var(--gray-100);
+            box-shadow: var(--shadow-sm);
+        }
+        .header-inner {
+            width: 100%; max-width: 1400px; margin: 0 auto;
+            display: flex; justify-content: space-between; align-items: center; padding: 0 40px;
+        }
+        .logo { font-size: 28px; font-weight: 900; color: var(--main-blue); letter-spacing: -1.5px; }
+        .gnb { display: flex; gap: 50px; }
+        .gnb a { 
+            font-size: 17px; font-weight: 600; color: var(--gray-700); 
+            position: relative; padding: 10px 0;
+        }
+        .gnb a::after {
+            content: ''; position: absolute; bottom: 0; left: 50%; width: 0; height: 3px;
+            background: var(--main-blue); transition: var(--transition); transform: translateX(-50%);
+        }
+        .gnb a:hover::after, .gnb a.active::after { width: 100%; }
+        .gnb a:hover { color: var(--main-blue); }
 
-        /* 섹션 전환 효과 */
-        section { display: none; padding: 100px 0; border-bottom: 1px solid #f0f0f0; }
-        section.active { display: block; animation: fadeIn 0.6s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .header-util { display: flex; align-items: center; gap: 20px; }
+        .btn-consult {
+            background: var(--main-blue); color: #fff; padding: 12px 28px;
+            border-radius: 50px; font-weight: 700; transition: var(--transition);
+        }
+        .btn-consult:hover { background: var(--dark-blue); box-shadow: var(--shadow-md); transform: translateY(-2px); }
 
-        /* 차량 카드 애니메이션 */
-        .car-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 40px; }
-        .car-card { background: #fff; border: 1px solid #eee; border-radius: 24px; overflow: hidden; transition: 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); }
-        .car-card:hover { transform: translateY(-12px); box-shadow: 0 40px 80px rgba(0,0,0,0.12); border-color: var(--main-blue); }
-        .car-img-box { width: 100%; height: 200px; overflow: hidden; background: #f9f9f9; }
-        .car-img { width: 100%; height: 100%; object-fit: contain; padding: 10px; transition: 0.5s; }
-        .car-card:hover .car-img { transform: scale(1.05); }
+        /* [4. Hero Slider - 압도적인 첫인상] */
+        .hero-swiper { width: 100%; height: 100vh; position: relative; }
+        .slide-item { position: relative; overflow: hidden; }
+        .slide-bg {
+            width: 100%; height: 100%; object-fit: cover;
+            transform: scale(1.1); transition: transform 8s ease;
+        }
+        .swiper-slide-active .slide-bg { transform: scale(1); }
+        .slide-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(to right, rgba(255,255,255,0.9) 20%, transparent 80%);
+            display: flex; align-items: center; padding: 0 10%;
+        }
+        .slide-text h2 { font-size: 70px; font-weight: 900; line-height: 1.1; margin-bottom: 30px; letter-spacing: -4px; }
+        .slide-text h2 span { color: var(--main-blue); }
+        .slide-text p { font-size: 22px; color: var(--gray-700); margin-bottom: 45px; }
 
-        /* 필터 사이드바 */
-        .sidebar { width: 220px; flex-shrink: 0; position: sticky; top: 110px; height: fit-content; }
-        .filter-title { font-size: 18px; font-weight: 800; color: var(--main-blue); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-        .filter-title::before { content: ''; display: block; width: 5px; height: 20px; background: var(--main-blue); border-radius: 10px; }
-        .filter-btn { display: block; width: 100%; text-align: left; padding: 12px 15px; border: none; background: #f8f9fa; cursor: pointer; font-size: 14px; border-radius: 10px; margin-bottom: 8px; transition: 0.3s; font-weight: 600; color: #666; }
-        .filter-btn.active, .filter-btn:hover { background: var(--main-blue); color: #fff; box-shadow: 0 5px 15px rgba(0,82,204,0.2); }
+        /* [5. Car Filter Section - 상세 필터링] */
+        .filter-section { padding: 120px 0; background: var(--gray-50); }
+        .section-title { text-align: center; margin-bottom: 80px; }
+        .section-title h3 { font-size: 42px; font-weight: 800; margin-bottom: 15px; }
+        .section-title p { color: var(--gray-400); font-size: 18px; }
 
-        /* 비교표 스타일 */
-        .compare-table { width: 100%; border-collapse: collapse; margin: 40px 0; background: #fff; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        .compare-table th { background: var(--main-blue); color: #fff; padding: 25px; font-size: 18px; }
-        .compare-table td { padding: 20px; border-bottom: 1px solid #f0f0f0; text-align: center; font-weight: 500; }
-        
-        /* 푸터 */
-        .footer { background: #111; color: #999; padding: 80px 0; text-align: center; font-size: 14px; }
-        .footer b { color: #fff; }
+        .filter-wrap {
+            display: flex; justify-content: center; gap: 15px; margin-bottom: 50px; flex-wrap: wrap;
+        }
+        .filter-btn {
+            padding: 12px 30px; border-radius: 50px; background: #fff; border: 1px solid var(--gray-200);
+            font-weight: 600; cursor: pointer; transition: var(--transition);
+        }
+        .filter-btn.active { background: var(--main-blue); color: #fff; border-color: var(--main-blue); }
+
+        /* [6. Car Grid - 카드 디테일] */
+        .car-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 40px; max-width: 1400px; margin: 0 auto; padding: 0 40px;
+        }
+        .car-card {
+            background: var(--white); border-radius: 24px; overflow: hidden;
+            border: 1px solid var(--gray-100); transition: var(--transition);
+        }
+        .car-card:hover { transform: translateY(-15px); box-shadow: var(--shadow-md); border-color: var(--main-blue); }
+        .car-img-wrap { width: 100%; height: 220px; overflow: hidden; background: #f1f1f1; position: relative; }
+        .car-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: var(--transition); }
+        .car-card:hover .car-img-wrap img { transform: scale(1.1); }
+        .badge-hot { 
+            position: absolute; top: 20px; left: 20px; background: var(--danger); 
+            color: #fff; padding: 5px 15px; border-radius: 50px; font-size: 12px; font-weight: 700;
+        }
+
+        .car-info { padding: 30px; }
+        .car-brand { font-size: 14px; font-weight: 800; color: var(--main-blue); text-transform: uppercase; }
+        .car-name { font-size: 24px; font-weight: 700; margin: 8px 0 20px; }
+        .car-spec { 
+            display: flex; justify-content: space-between; border-top: 1px solid var(--gray-100);
+            padding-top: 20px; margin-bottom: 25px;
+        }
+        .spec-item { text-align: center; }
+        .spec-label { font-size: 11px; color: var(--gray-400); display: block; }
+        .spec-value { font-size: 14px; font-weight: 600; }
+
+        .car-price-box {
+            background: var(--light-blue); border-radius: 15px; padding: 20px; text-align: center;
+        }
+        .price-label { font-size: 13px; color: var(--main-blue); font-weight: 700; }
+        .price-value { font-size: 28px; font-weight: 900; color: var(--gray-900); }
+        .price-value span { font-size: 16px; font-weight: 500; }
+
+        /* [7. Footer 디테일] */
+        .footer { background: #1a1a1a; color: #fff; padding: 100px 0 50px; }
+        .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 60px; margin-bottom: 60px; }
+        .footer-logo { font-size: 30px; font-weight: 900; color: var(--main-blue); margin-bottom: 20px; display: block; }
+        .footer-info p { color: #999; font-size: 14px; margin-bottom: 10px; }
+        .footer-title { font-size: 18px; font-weight: 700; margin-bottom: 25px; }
+        .footer-links li { margin-bottom: 15px; }
+        .footer-links a { color: #999; font-size: 15px; }
+        .footer-links a:hover { color: #fff; }
+
+        /* [Animation] */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
 
-    <div class="quick-float">
-        <h4>⚡ 60초 간편 견적문의</h4>
-        <form action="https://formspree.io/f/meelygdy" method="POST">
-            <input type="text" name="name" class="quick-input" placeholder="성함" required>
-            <input type="text" name="phone" class="quick-input" placeholder="휴대폰 번호" required>
-            <input type="text" name="carname" class="quick-input" placeholder="차량명">
-            <button type="submit" class="quick-submit">문의하기 (실시간 전송)</button>
-        </form>
-    </div>
-
-    <header>
-        <div class="wrap header__inner">
-            <a class="logo" onclick="showSection('home')">PX <b>PICKCAR</b></a>
-            <nav class="nav">
-                <a onclick="showSection('home')">홈</a>
-                <a onclick="showSection('about')">회사소개</a>
-                <a onclick="showSection('compare')">할부·렌트·리스 비교</a>
-                <a onclick="showSection('cars')">차량견적 문의</a>
+    <header class="pc-header">
+        <div class="header-inner">
+            <a href="#" class="logo">PICK CAR</a>
+            <nav class="gnb">
+                <a href="#hero" class="active">HOME</a>
+                <a href="#cars">차량안내</a>
+                <a href="#process">이용절차</a>
+                <a href="#review">출고후기</a>
+                <a href="#contact">상담신청</a>
             </nav>
+            <div class="header-util">
+                <a href="tel:1588-9097" style="font-weight: 700;"><i class="fa-solid fa-phone"></i> 1588-9097</a>
+                <a href="#contact" class="btn-consult">빠른 견적신청</a>
+            </div>
         </div>
     </header>
 
-    <section id="home" class="active" style="padding:0;">
-        <div class="hero">
-            <div class="slide active" style="background-image: linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=2000')">
-                <div class="wrap slide__content">
-                    <p style="color:var(--light-blue); font-weight:800; font-size:20px; margin-bottom:10px;">PREMIUM AGENT</p>
-                    <h1 style="font-size:65px; line-height:1.2;">허위견적 없는<br><span style="color:var(--light-blue); text-decoration: underline;">정직한 3% 수수료</span></h1>
-                    <p style="font-size:20px; margin-top:15px;">픽카는 오직 실력과 정직함으로 승부합니다.</p>
-                </div>
-            </div>
-            <div class="slide" style="background-image: linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?q=80&w=2000')">
-                <div class="wrap slide__content">
-                    <h1 style="font-size:65px;">24개 금융사 비교<br>맞춤형 견적 시스템</h1>
-                    <p style="font-size:20px; margin-top:15px;">대표님의 상황에 최적화된 최저가 조건을 찾아드립니다.</p>
-                </div>
-            </div>
-        </div>
-        <div class="wrap" style="text-align:center; padding:120px 0;">
-            <h2 style="font-size:42px; color:var(--main-blue); letter-spacing:-1.5px;">"당사는 허위견적 없는 3% 수수료로 들어갑니다."</h2>
-            <p style="font-size:20px; color:#666; margin-top:30px; font-weight:500;">신차 종합 에이전시 픽카는 거품을 걷어낸 진짜 가격을 약속합니다.</p>
-            <button class="quick-submit" style="width:250px; margin-top:40px; padding:20px;" onclick="showSection('cars')">차량 견적 보러가기</button>
-        </div>
-    </section>
-
-    <section id="about">
-        <div class="wrap">
-            <div style="background:var(--main-blue); color:#fff; padding:100px 50px; border-radius:40px; text-align:center; margin-bottom:80px; box-shadow: 0 30px 60px rgba(0,82,204,0.2);">
-                <h1 style="font-size:50px; margin-bottom:20px;">"정직이 최선의 견적이다"</h1>
-                <p style="font-size:22px; opacity:0.9;">픽카(PICKCAR) | 신차 금융의 새로운 기준</p>
-            </div>
-            <div style="text-align:center; margin-bottom:60px;">
-                <h2 style="font-size:32px;">핵심 리더십</h2>
-            </div>
-            <div class="car-grid" style="grid-template-columns: repeat(3, 1fr);">
-                <div style="text-align:center;">
-                    <div style="width:200px; height:200px; background:#f0f0f0; border-radius:50%; margin:0 auto 25px; border: 5px solid var(--light-blue);"></div>
-                    <h3 style="font-size:22px;">이종현 대표</h3>
-                    <p style="color:#888;">신차 금융 총괄 전략가</p>
-                </div>
-                </div>
-        </div>
-    </section>
-
-    <section id="compare">
-        <div class="wrap">
-            <h2 style="text-align:center; font-size:36px; margin-bottom:60px;">할부 · 렌트 · 리스 완벽 비교표</h2>
-            <table class="compare-table">
-                <thead>
-                    <tr><th>구분</th><th>장기렌트</th><th>자동차 리스</th><th>신차 할부</th></tr>
-                </thead>
-                <tbody>
-                    <tr><td><b>보험료</b></td><td>월 렌트료 포함 (사고 시 할증X)</td><td>개별 가입 (보험 경력 유지)</td><td>개별 가입</td></tr>
-                    <tr><td><b>번호판</b></td><td>'하, 허, 호' 사용</td><td>일반 번호판 사용</td><td>일반 번호판 사용</td></tr>
-                    <tr><td><b>자산 여부</b></td><td>부채/자산으로 잡히지 않음</td><td>금융리스 외 자산 미포함</td><td>내 명의 자산 (신용 영향)</td></tr>
-                    <tr><td><b>경비 처리</b></td><td>연간 최대 1,500만원 가능</td><td>연간 최대 1,500만원 가능</td><td>사업자만 가능 (제한적)</td></tr>
-                </tbody>
-            </table>
-            <div class="car-grid" style="margin-top:60px;">
-                <div style="background:var(--gray); padding:40px; border-radius:25px; border-top: 5px solid var(--main-blue);">
-                    <h3 style="margin-bottom:20px; color:var(--main-blue);">🚗 장기렌트</h3>
-                    <ul style="list-style:none; color:#555;">
-                        <li>✔ 초기비용 0원 가능</li>
-                        <li>✔ 보험료 및 세금 걱정 제로</li>
-                        <li>✔ 주행거리가 많으신 분께 추천</li>
-                    </ul>
-                </div>
-                <div style="background:var(--gray); padding:40px; border-radius:25px; border-top: 5px solid var(--main-blue);">
-                    <h3 style="margin-bottom:20px; color:var(--main-blue);">🏦 자동차 리스</h3>
-                    <ul style="list-style:none; color:#555;">
-                        <li>✔ 일반 번호판으로 품위 유지</li>
-                        <li>✔ 사고 무경력자 보험료 절감</li>
-                        <li>✔ 고가 수입차 리스 시 유리</li>
-                    </ul>
-                </div>
-                <div style="background:var(--gray); padding:40px; border-radius:25px; border-top: 5px solid var(--main-blue);">
-                    <h3 style="margin-bottom:20px; color:var(--main-blue);">💰 신차 할부</h3>
-                    <ul style="list-style:none; color:#555;">
-                        <li>✔ 장기 소유 목적 시 최저 금리</li>
-                        <li>✔ 내 명의 자산 가치 확보</li>
-                        <li>✔ 중도 상환 시 유연함</li>
-                    </ul>
+    <section id="hero" class="hero-swiper">
+        <div class="slide-item">
+            <div class="slide-overlay">
+                <div class="slide-text" data-aos="fade-right">
+                    <h2>신차 구매의<br><span>가장 현명한 선택</span></h2>
+                    <p>전 금융사 실시간 최저가 비교 시스템으로<br>최적의 견적을 10분 만에 제안해 드립니다.</p>
+                    <a href="#contact" class="btn-consult" style="padding: 20px 50px; font-size: 20px;">지금 바로 견적받기</a>
                 </div>
             </div>
         </div>
     </section>
 
-    <section id="cars">
-        <div class="wrap" style="display:flex; gap:50px;">
-            <aside class="sidebar">
-                <div class="filter-group">
-                    <div class="filter-title">제조사별</div>
-                    <button class="filter-btn active" onclick="filterBrand('전체')">전체보기</button>
-                    <button class="filter-btn" onclick="filterBrand('현대')">현대자동차</button>
-                    <button class="filter-btn" onclick="filterBrand('기아')">기아자동차</button>
-                    <button class="filter-btn" onclick="filterBrand('제네시스')">제네시스</button>
-                </div>
-                <div class="filter-group">
-                    <div class="filter-title">가격대별</div>
-                    <button class="filter-btn" onclick="filterPrice(0, 300000)">30만 이하</button>
-                    <button class="filter-btn" onclick="filterPrice(300000, 500000)">30~50만</button>
-                    <button class="filter-btn" onclick="filterPrice(500000, 1000000)">50~100만</button>
-                    <button class="filter-btn" onclick="filterPrice(1000000, 9999999)">100만 이상</button>
-                </div>
-            </aside>
-            <div style="flex-grow:1;">
-                <div style="padding:20px; background:var(--light-blue); border-radius:15px; margin-bottom:40px; border-left: 5px solid var(--main-blue);">
-                    💡 <b>알림:</b> 매월 2~3회 견적이 변동되므로, 표시된 금액은 <b>예상가격</b>입니다. 정확한 확정 견적은 상담을 통해 확인해 주세요.
-                </div>
-                <div class="car-grid" id="car-list">
-                    </div>
+    <section id="cars" class="filter-section">
+        <div class="container">
+            <div class="section-title" data-aos="fade-up">
+                <h3>PICK CAR 추천 매물</h3>
+                <p>현재 가장 인기 있는 즉시 출고 가능 차량들입니다.</p>
             </div>
+
+            <div class="filter-wrap" data-aos="fade-up">
+                <button class="filter-btn active" onclick="filterBrand('전체')">전체</button>
+                <button class="filter-btn" onclick="filterBrand('현대')">현대</button>
+                <button class="filter-btn" onclick="filterBrand('기아')">기아</button>
+                <button class="filter-btn" onclick="filterBrand('제네시스')">제네시스</button>
+                <button class="filter-btn" onclick="filterBrand('수입차')">수입차</button>
+            </div>
+
+            <div id="car-list" class="car-grid">
+                </div>
         </div>
     </section>
 
-    <footer class="footer">
-        <div class="wrap">
-            <p style="font-size:20px; font-weight:900; color:#fff; margin-bottom:10px;">PX <b>PICKCAR</b></p>
-            <p>대표자: 이종현 | 주소: 강원도 원주시 | 신차 종합 에이전시</p>
-            <p style="margin-top:20px; opacity:0.5;">© 2026 PICKCAR. All rights reserved.</p>
-        </div>
-    </footer>
-
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
     <script>
-        // 메뉴 전환 함수
-        function showSection(id) {
-            document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            window.scrollTo(0, 0);
-            
-            // 메뉴 클릭 시 필터링 초기화
-            if(id === 'cars') filterBrand('전체');
-        }
-
-        // 히어로 슬라이더
-        let idx = 0;
-        const slides = document.querySelectorAll('.slide');
-        setInterval(() => {
-            slides[idx].classList.remove('active');
-            idx = (idx + 1) % slides.length;
-            slides[idx].classList.add('active');
-        }, 5000);
-
-        // 구글 시트 연동
-        const SHEET_ID = '1id0jWui5_lKnnk0j_fAZMUnNFjv92xUUNVIHZGXr1vE';
-        const DATA_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
-
-        let carData = [];
-
-        fetch(DATA_URL).then(res => res.text()).then(text => {
-            const json = JSON.parse(text.substr(47).slice(0, -2));
-            carData = json.table.rows.map(row => ({
-                brand: row.c[0].v,
-                name: row.c[1].v,
-                cond: row.c[2].v,
-                price: row.c[3].v,
-                img: row.c[4] ? row.c[4].v : "https://via.placeholder.com/400x250?text=IMG"
-            }));
-            // 최저가순 정렬
-            carData.sort((a,b) => a.price - b.price);
-            renderCars(carData);
+        AOS.init({ duration: 1000 });
+        
+        // 스크롤 시 헤더 변화
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 100) document.querySelector('.pc-header').classList.add('scrolled');
+            else document.querySelector('.pc-header').classList.remove('scrolled');
         });
-
-        function renderCars(data) {
-            const grid = document.getElementById('car-list');
-            grid.innerHTML = '';
-            data.forEach((car, i) => {
-                grid.innerHTML += `
-                    <div class="car-card" style="animation: fadeInUp 0.6s forwards; animation-delay: ${i * 0.05}s">
-                        <div class="car-img-box">
-                            <img src="${car.img}" class="car-img">
-                        </div>
-                        <div style="padding:25px;">
-                            <span style="font-size:12px; color:var(--main-blue); font-weight:800;">${car.brand}</span>
-                            <h3 style="margin:5px 0 15px 0; font-size:20px;">${car.name}</h3>
-                            <div style="background:var(--gray); padding:12px; border-radius:12px; margin-bottom:20px;">
-                                <p style="font-size:13px; color:#777;">${car.cond}</p>
-                                <p style="font-size:24px; font-weight:900; color:#E63946;">월 ${car.price.toLocaleString()}원~</p>
-                            </div>
-                            <button class="quick-submit" onclick="showSection('contact')">견적 문의하기</button>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        function filterBrand(brand) {
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            const filtered = brand === '전체' ? carData : carData.filter(c => c.brand === brand);
-            renderCars(filtered);
-        }
-
-        function filterPrice(min, max) {
-            const filtered = carData.filter(c => c.price >= min && c.price <= max);
-            renderCars(filtered);
-        }
     </script>
 </body>
 </html>
