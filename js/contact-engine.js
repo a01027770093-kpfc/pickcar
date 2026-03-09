@@ -115,16 +115,25 @@ async function executeDualTelegramPush(uData) {
     const isBranchOwnerRegistered = branchInfo.telegram_id && branchInfo.telegram_id !== CONTACT_SYSTEM_CONFIG.HQ_CHAT_ID;
 
     if (isBranchOwnerRegistered) {
-        const ownerPushText = `
-🔔 [${branchInfo.title}] 새 고객이 도착했습니다!
-━━━━━━━━━━━━━━
+const branchOwnerMessage = `
+🔔 [${branchName}] 신규 고객 상담건 도착!
+━━━━━━━━━━━━━━━━━━━━
 대표님, 내 지점에서 상담 신청이 접수되었습니다.
-성함: ${uData.name}님
-번호: ${uData.phone}
-즉시 응대하여 계약으로 연결하세요!
-━━━━━━━━━━━━━━
-- PICK CAR 본사 시스템 -
-        `;
+신속하게 연락하여 계약을 확정지으세요!
+
+👤 고객성함 : ${customerName}님
+📞 연락처   : ${customerPhone}
+
+🚘 문의차량 : ${inquiredCar}
+💳 계약방식 : ${contractWay} (렌트/리스/할부)
+
+📝 상담메모 : 
+${detailMemo}
+
+━━━━━━━━━━━━━━━━━━━━
+"정직한 숫자가 고객의 마음을 움직입니다."
+- PICK CAR 전국 통합 시스템 -
+`;
         
         await fetch(telegramApiUrl, {
             method: 'POST',
